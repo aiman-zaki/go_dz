@@ -1,0 +1,573 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "DZ API.",
+    "version": "0.0.1"
+  },
+  "host": "localhost:8181",
+  "basePath": "/api/",
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Login",
+        "operationId": "authLogin",
+        "parameters": [
+          {
+            "name": "Auth",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Auth"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/validCredential"
+          },
+          "401": {
+            "$ref": "#/responses/invalidCredential"
+          },
+          "404": {
+            "$ref": "#/responses/errorNotFound"
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Register",
+        "operationId": "authRegister",
+        "parameters": [
+          {
+            "name": "Auth",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Auth"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/validCredential"
+          },
+          "422": {
+            "$ref": "#/responses/dataAlreadyExisted"
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get all Products.",
+        "operationId": "getProducts",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/products"
+          },
+          "401": {
+            "$ref": "#/responses/notAuthorized"
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Products"
+        ],
+        "summary": "Create a Product.",
+        "operationId": "createProduct",
+        "parameters": [
+          {
+            "name": "Product",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/product"
+          },
+          "401": {
+            "$ref": "#/responses/notAuthorized"
+          }
+        }
+      }
+    },
+    "/role": {
+      "get": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Get All Roles",
+        "operationId": "getRoles",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/successRoleArray"
+          }
+        }
+      },
+      "post": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Roles"
+        ],
+        "summary": "Create New Role",
+        "operationId": "createRole",
+        "parameters": [
+          {
+            "name": "Role",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Role"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/successRole"
+          },
+          "422": {
+            "$ref": "#/responses/dataAlreadyExisted"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Users"
+        ],
+        "summary": "Lists all users.",
+        "operationId": "listUsers"
+      },
+      "post": {
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Users"
+        ],
+        "summary": "Create a User.",
+        "operationId": "createUser",
+        "parameters": [
+          {
+            "name": "User",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "Auth": {
+      "description": "Auth represents the Authentication Model for this application",
+      "type": "object",
+      "required": [
+        "email",
+        "password"
+      ],
+      "properties": {
+        "access_token": {
+          "description": "accesstoken (jwt) expired (1 hours)",
+          "type": "string",
+          "x-go-name": "AcessToken",
+          "readOnly": true
+        },
+        "email": {
+          "description": "email for auth",
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "id": {
+          "description": "id for user",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID",
+          "readOnly": true
+        },
+        "password": {
+          "description": "password for auth",
+          "type": "string",
+          "x-go-name": "Password"
+        },
+        "refresh_token": {
+          "description": "refreshtoken (jwt) expired (15 days)",
+          "type": "string",
+          "x-go-name": "RefreshToken",
+          "readOnly": true
+        },
+        "role_id": {
+          "description": "the role for this user\nnot required during login",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RoleID"
+        }
+      },
+      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
+    },
+    "Product": {
+      "description": "Product represents the product for this application",
+      "type": "object",
+      "properties": {
+        "date_created": {
+          "description": "the dateCreated for the product",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DateCreated"
+        },
+        "date_updated": {
+          "description": "the dateUpdated for the product",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DateUpdated"
+        },
+        "id": {
+          "description": "the id for the product",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "name": {
+          "description": "the name for the product",
+          "type": "string",
+          "x-go-name": "Name"
+        },
+        "price_per_bundle": {
+          "description": "the price_per_bundle for the product",
+          "type": "number",
+          "format": "double",
+          "x-go-name": "PricePerBundle"
+        },
+        "price_per_unit": {
+          "description": "the price_per_unit for the product",
+          "type": "number",
+          "format": "double",
+          "x-go-name": "PricePerUnit"
+        }
+      },
+      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
+    },
+    "Role": {
+      "description": "Role : model for the role existes in the system",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "id for role",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID",
+          "readOnly": true
+        },
+        "role": {
+          "description": "the role",
+          "type": "string",
+          "x-go-name": "Role"
+        }
+      },
+      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
+    },
+    "User": {
+      "description": "User represents the product for this application",
+      "type": "object",
+      "required": [
+        "first_name",
+        "last_name"
+      ],
+      "properties": {
+        "date_created": {
+          "description": "the dateCreated for this user",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DateCreated"
+        },
+        "date_updated": {
+          "description": "the dateUpdated for this user",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DateUpdated"
+        },
+        "first_name": {
+          "description": "the first name for this user",
+          "type": "string",
+          "minLength": 3,
+          "x-go-name": "FirstName"
+        },
+        "id": {
+          "description": "the id for this user",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "last_name": {
+          "description": "the last name for this user",
+          "type": "string",
+          "minLength": 3,
+          "x-go-name": "LastName"
+        },
+        "salary": {
+          "description": "the salary for this user",
+          "type": "number",
+          "format": "double",
+          "x-go-name": "Salary"
+        }
+      },
+      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
+    }
+  },
+  "responses": {
+    "dataAlreadyExisted": {
+      "description": "DataAlreadyExisted :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "x-go-name": "Message"
+          }
+        }
+      }
+    },
+    "errorNotFound": {
+      "description": "ErrorNotFound :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "x-go-name": "Message"
+          }
+        }
+      }
+    },
+    "invalidCredential": {
+      "description": "InvalidCredential :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "the error message",
+            "type": "string",
+            "x-go-name": "Message"
+          }
+        }
+      }
+    },
+    "notAthorized": {
+      "description": "NotAuthorized :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "Message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "product": {
+      "description": "ProductResponse : List a product",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "the success message",
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "product": {
+            "$ref": "#/definitions/Product"
+          }
+        }
+      }
+    },
+    "products": {
+      "description": "ProductsResponse : List all products",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "the success message",
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Product"
+            },
+            "x-go-name": "Product"
+          }
+        }
+      }
+    },
+    "successRole": {
+      "description": "SuccessRole :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "the success message",
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "role": {
+            "$ref": "#/definitions/Role"
+          }
+        }
+      }
+    },
+    "successRoleArray": {
+      "description": "SuccessRoleArray :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "the success message",
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Role"
+            },
+            "x-go-name": "Role"
+          }
+        }
+      }
+    },
+    "validCredential": {
+      "description": "ValidCredential :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "auth": {
+            "$ref": "#/definitions/Auth"
+          },
+          "message": {
+            "description": "the success message",
+            "type": "string",
+            "x-go-name": "Message"
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "flow": "implicit"
+    }
+  },
+  "security": [
+    {
+      "Bearer": [
+        "[]"
+      ]
+    }
+  ]
+}
