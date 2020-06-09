@@ -33,10 +33,6 @@ type Product struct {
 	ID int64 `json:"id"`
 	// the name for the product
 	Name string `json:"name"`
-	// the price_per_bundle for the product
-	PricePerBundle float64 `json:"price_per_bundle"`
-	// the price_per_unit for the product
-	PricePerUnit float64 `json:"price_per_unit"`
 	// the dateCreated for the product
 	DateCreated time.Time `json:"date_created"`
 	// the dateUpdated for the product

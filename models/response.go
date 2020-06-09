@@ -1,7 +1,7 @@
 package models
 
 // NotAuthorized :
-// swagger:response notAthorized
+// swagger:response notAuthorized
 type NotAuthorized struct {
 	// in: body
 	Body struct {

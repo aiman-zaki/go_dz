@@ -80,6 +80,8 @@ func main() {
 	r.Mount("/api/stores", repositories.StoresResource.Routes(repositories.StoresResource{}))
 	r.Mount("/api/auth", repositories.AuthResources.Routes(repositories.AuthResources{}))
 	r.Mount("/api/role", repositories.RoleResources.Routes(repositories.RoleResources{}))
+	r.Mount("/api/suppliers", repositories.SuppliersResource.Routes(repositories.SuppliersResource{}))
+
 	//swagger-ui serve
 	fs := http.FileServer(http.Dir("./swagger_ui"))
 	r.Mount("/swagger", http.StripPrefix("/swagger", fs))

@@ -28,7 +28,7 @@ func (rs StoresResource) Routes() chi.Router {
 	return r
 }
 
-func (rs StoresResource) CountStoreExist(db *pg.DB, id int64, m models.Store) int {
+func (rs StoresResource) CountStoreExist(db *pg.DB, id int64, m models.Branch) int {
 
 	count, err := db.Model(&m).Where("id = ?", id).SelectAndCount()
 	if err != nil {
@@ -39,7 +39,7 @@ func (rs StoresResource) CountStoreExist(db *pg.DB, id int64, m models.Store) in
 
 func (rs StoresResource) Create(w http.ResponseWriter, r *http.Request) {
 	wrappers.LogRequest(r, "CreateStore")
-	var m models.Store
+	var m models.Branch
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
 	wrappers.JSONDecodeWrapper(w, r, &m)
@@ -69,7 +69,7 @@ func (rs StoresResource) Create(w http.ResponseWriter, r *http.Request) {
 
 func (rs StoresResource) Update(w http.ResponseWriter, r *http.Request) {
 	wrappers.LogRequest(r, "UpdateStore")
-	var m models.Store
+	var m models.Branch
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
 	wrappers.JSONDecodeWrapper(w, r, &m)
@@ -93,7 +93,7 @@ func (rs StoresResource) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rs StoresResource) GetAll(w http.ResponseWriter, r *http.Request) {
-	var m []models.Store
+	var m []models.Branch
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
 	err := db.Model(&m).Relation("Coordinate").Select()
@@ -105,7 +105,7 @@ func (rs StoresResource) GetAll(w http.ResponseWriter, r *http.Request) {
 
 func (rs StoresResource) GetById(w http.ResponseWriter, r *http.Request) {
 	wrappers.LogRequest(r, "GetStoreById")
-	var m models.Store
+	var m models.Branch
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
 	id := chi.URLParam(r, "id")
@@ -119,7 +119,7 @@ func (rs StoresResource) GetById(w http.ResponseWriter, r *http.Request) {
 
 func (rs StoresResource) DeleteById(w http.ResponseWriter, r *http.Request) {
 	wrappers.LogRequest(r, "DeleteById")
-	var m models.Store
+	var m models.Branch
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
 

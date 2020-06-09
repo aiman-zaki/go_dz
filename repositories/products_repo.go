@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/aiman-zaki/go_dz_http/models"
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/aiman-zaki/go_dz_http/wrappers"
 	"github.com/go-chi/chi"
-	"github.com/go-chi/jwtauth"
 	"github.com/go-pg/pg/v9"
 )
 
@@ -17,8 +17,8 @@ type ProductsResource struct{}
 
 func (rs ProductsResource) Routes() chi.Router {
 	r := chi.NewRouter()
-	r.Use(jwtauth.Verifier(jwtauth.New("HS256", []byte("secret"), nil)))
-	r.Use(jwtauth.Authenticator)
+	//r.Use(jwtauth.Verifier(jwtauth.New("HS256", []byte("secret"), nil)))
+	//r.Use(jwtauth.Authenticator)
 	r.Route("/", func(r chi.Router) {
 		// swagger:route GET /products Products getProducts
 		//
@@ -52,10 +52,40 @@ func (rs ProductsResource) Routes() chi.Router {
 		//       200:product
 		//       401:notAuthorized
 		r.Post("/", rs.Create)
-		r.Put("/", rs.Update)
+		// swagger:route POST /products/{id} Products updateProduct
+		//
+		// Update a Product.
+		//
+		//    Consumes;
+		//     - application/json
+		//    Produces:
+		//     - application/json
+		//    Schemes: http, https
+		//
+		//    Security:
+		//      Bearer:
+		//    Responses:
+		//       200:product
+		//       401:notAuthorized
+		r.Put("/{id}", rs.Update)
+		// swagger:route GET /products/{id} Products getProductById
+		//
+		// GET a Product by ID.
+		//
+		//    Consumes;
+		//     - application/json
+		//    Produces:
+		//     - application/json
+		//    Schemes: http, https
+		//
+		//    Security:
+		//      Bearer:
+		//    Responses:
+		//       200:product
+		//       401:notAuthorized
+		r.Get("/{id}", rs.GetById)
 		r.Delete("/", rs.Delete)
 	})
-
 	return r
 }
 
@@ -63,6 +93,18 @@ func (rs ProductsResource) Routes() chi.Router {
 type ProductWrapper struct {
 	// in:body
 	Product models.Product
+}
+
+// swagger:parameters productById updateProduct getProducts
+type ProductWithLimitWrapper struct {
+	CurrentPage string `json:"currentPage"`
+	PerPage     string `json:"perPage"`
+}
+
+// swagger:parameters productById updateProduct getProductById
+type ProductIDWrapper struct {
+	// in:path
+	Id string `json:"id"`
 }
 
 func (rs ProductsResource) Create(w http.ResponseWriter, r *http.Request) {
@@ -105,12 +147,8 @@ func (res ProductsResource) Delete(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (rs ProductsResource) All(w http.ResponseWriter, r *http.Request) {
-	_, claims, jwtErr := jwtauth.FromContext(r.Context())
-	if jwtErr != nil {
-		fmt.Print(jwtErr)
-	}
-	fmt.Println(claims)
+func (rs ProductsResource) GetById(w http.ResponseWriter, r *http.Request) {
+
 	var p []models.Product
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
@@ -118,6 +156,47 @@ func (rs ProductsResource) All(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 
+	}
+	json.NewEncoder(w).Encode(p)
+}
+
+func (rs ProductsResource) All(w http.ResponseWriter, r *http.Request) {
+	/*_, claims, jwtErr := jwtauth.FromContext(r.Context())
+	if jwtErr != nil {
+		fmt.Print(jwtErr)
+	}
+	fmt.Println(claims)*/
+	fmt.Println(r.URL.Query())
+	perPage := r.URL.Query()["perPage"]
+	currentPage := r.URL.Query()["currentPage"]
+
+	if perPage != nil && currentPage != nil {
+		fmt.Println("With Limit")
+		perPageInt, _ := strconv.Atoi(perPage[0])
+		currentPageInt, _ := strconv.Atoi(currentPage[0])
+		getProductsWithLimit(w, perPageInt, currentPageInt)
+	} else {
+		fmt.Println("No Limit")
+		var p []models.Product
+		db := pg.Connect(services.PgOptions())
+		defer db.Close()
+		err := db.Model(&p).Select()
+		if err != nil {
+			fmt.Println(err)
+
+		}
+		json.NewEncoder(w).Encode(p)
+
+	}
+}
+
+func getProductsWithLimit(w http.ResponseWriter, perPage int, currentPage int) {
+	var p []models.Product
+	db := pg.Connect(services.PgOptions())
+	defer db.Close()
+	err := db.Model(&p).Offset(perPage * (currentPage - 1)).Limit(perPage).Select()
+	if err != nil {
+		fmt.Println(err)
 	}
 	json.NewEncoder(w).Encode(p)
 }

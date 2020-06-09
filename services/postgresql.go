@@ -15,7 +15,7 @@ import (
 func PgOptions() *pg.Options {
 	return &pg.Options{
 		User:        "postgres",
-		Password:    "",
+		Password:    "mysecretpassword",
 		Database:    "dz",
 		ReadTimeout: 10 * time.Second,
 	}

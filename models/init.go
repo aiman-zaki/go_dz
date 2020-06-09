@@ -10,16 +10,20 @@ func InitLekorRiangDb() {
 	defer db.Close()
 
 	models := []interface{}{
+		(*Unit)(nil),
 		(*Role)(nil),
 		(*Auth)(nil),
 		(*User)(nil),
 		(*Coordinate)(nil),
-		(*Store)(nil),
-		(*UnitBundle)(nil),
+		(*Branch)(nil),
+		(*SupplyUnit)(nil),
 		(*Supplier)(nil),
 		(*Product)(nil),
+		(*PriceProductUnit)(nil),
 		(*Payment)(nil),
 		(*Stock)(nil),
+		(*StockStatus)(nil),
+		(*RecordStock)(nil),
 		(*Supply)(nil),
 	}
 

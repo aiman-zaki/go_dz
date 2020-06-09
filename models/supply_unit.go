@@ -2,10 +2,11 @@ package models
 
 import "time"
 
-type UnitBundle struct {
+type SupplyUnit struct {
 	Id          int64     `json:"id"`
-	Unit        int64     `json:"unit"`
-	Bundle      int64     `json:"bundle"`
+	UnitId      int64     `json:"unit_id"`
+	Unit        *Unit     `pg:"fk:unit_id"`
+	Amount      int64     `json:"amount"`
 	DateCreated time.Time `json""date_created"`
 	DateUpdated time.Time `json:date_updated"`
 }

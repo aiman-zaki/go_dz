@@ -1,6 +1,6 @@
 package models
 
-type Store struct {
+type Branch struct {
 	ID           int64      `json:"id"`
 	CoordinateId int64      `json:"coordinate_id"`
 	Name         string     `json:"name"`
