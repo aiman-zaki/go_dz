@@ -40,4 +40,8 @@ dev:
 	sleep 5
 	podman exec -it postgres psql -U postgres -c "CREATE DATABASE dz"
 	${swagger} generate spec -o ./swagger_ui/swagger.json
-	go run main.go
+
+
+gen:
+	${swagger} generate spec -o ./swagger_ui/swagger.json
+	${GO} run main.go
