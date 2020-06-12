@@ -12,20 +12,14 @@ import (
 	"github.com/go-pg/pg/v9"
 )
 
-type SupplierResources struct{}
+type SupplyResources struct{}
 
-// swagger:parameters createSupplier
-type SupplierWrapper struct {
-	// in:body
-	Supplier models.Supplier
-}
-
-func (rs SupplierResources) Routes() chi.Router {
+func (rs SupplyResources) Routes() chi.Router {
 	r := chi.NewRouter()
 	r.Route("/", func(r chi.Router) {
-		// swagger:route GET /suppliers Supplier getSuppliers
+		// swagger:route POST /supplies Supplies createSupply
 		//
-		// Get All Suppliers
+		// Create a Supply
 		//
 		//    Consumes;
 		//     - application/json
@@ -34,42 +28,46 @@ func (rs SupplierResources) Routes() chi.Router {
 		//    Schemes: http, https
 		//
 		//    Responses:
-		//	   200: suppliers
+		//	   200: supply
+		r.Get("/", rs.Create)
+		// swagger:route GET /supplies Supplies getAllSupply
+		//
+		// Get all Supply
+		//
+		//    Consumes;
+		//     - application/json
+		//    Produces:
+		//     - application/json
+		//    Schemes: http, https
+		//
+		//    Responses:
+		//	   200: supplies
 		r.Get("/", rs.GetAll)
-		// swagger:route POST /suppliers Supplier createSupplier
-		//
-		// Add a Supplier
-		//
-		//    Consumes;
-		//     - application/json
-		//    Produces:
-		//     - application/json
-		//    Schemes: http, https
-		//
-		//    Responses:
-		//	   200: supplier
-		r.Post("/", rs.Create)
 	})
-
 	return r
+
 }
 
-func (rs SupplierResources) Create(w http.ResponseWriter, r *http.Request) {
-	var m models.Supplier
+// swagger:parameters createSupply
+type createSupplyParam struct {
+	// in:body
+	Supply *models.Supply `json:"supply"`
+}
+
+func (rs SupplyResources) Create(w http.ResponseWriter, r *http.Request) {
+	var p models.Supply
 	db := pg.Connect(services.PgOptions())
 	w.Header().Set("content-type", "application/json")
 	defer db.Close()
-	wrappers.JSONDecodeWrapper(w, r, &m)
-	err := db.Insert(&m)
+	wrappers.JSONDecodeWrapper(w, r, &p)
+	err := db.Insert(&p)
 	if err != nil {
 		fmt.Println(err)
 	}
-	json.NewEncoder(w).Encode(m)
-
 }
 
-func (rs SupplierResources) GetAll(w http.ResponseWriter, r *http.Request) {
-	var m []models.Supplier
+func (rs SupplyResources) GetAll(w http.ResponseWriter, r *http.Request) {
+	var m []models.Supply
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
 	err := db.Model(&m).Select()

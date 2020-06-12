@@ -2,12 +2,34 @@ package models
 
 import "time"
 
+// UsersResponse : List all users
+// swagger:response users
+type UsersResponse struct {
+	// in: body
+	Body struct {
+		//the success message
+		Message string  `json:"message"`
+		User    []*User `json:"users"`
+	}
+}
+
+// UserResponse : List all users
+// swagger:response user
+type UserResponse struct {
+	// in: body
+	Body struct {
+		//the success message
+		Message string `json:"message"`
+		User    *User  `json:"user"`
+	}
+}
+
 // User represents the product for this application
 //
 // swagger:model
 type User struct {
 	// the id for this user
-	//
+	// readOnly: true
 	ID int64 `pg:"alias:auth_id" json:"id"`
 	// swagger:ignore
 	Auth *Auth `pg:"fk:auth_id"`

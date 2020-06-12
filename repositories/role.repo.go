@@ -24,35 +24,36 @@ type RoleWrapper struct {
 
 func (rs RoleResources) Routes() chi.Router {
 	r := chi.NewRouter()
-	// swagger:route POST /role Roles createRole
-	//
-	// Create New Role
-	//
-	//    Consumes;
-	//     - application/json
-	//    Produces:
-	//     - application/json
-	//    Schemes: http, https
-	//
-	//    Responses:
-	//	   200: successRole
-	//	   422: dataAlreadyExisted
+
 	r.Route("/", func(r chi.Router) {
+		// swagger:route POST /role Roles createRole
+		//
+		// Create New Role
+		//
+		//    Consumes;
+		//     - application/json
+		//    Produces:
+		//     - application/json
+		//    Schemes: http, https
+		//
+		//    Responses:
+		//	   200: role
+		//	   422: dataAlreadyExisted
 		r.Post("/", rs.Create)
+		// swagger:route GET /role Roles getRoles
+		//
+		// Get All Roles
+		//
+		//    Consumes;
+		//     - application/json
+		//    Produces:
+		//     - application/json
+		//    Schemes: http, https
+		//
+		//    Responses:
+		//	   200: roles
+		r.Get("/", rs.All)
 	})
-	// swagger:route GET /role Roles getRoles
-	//
-	// Get All Roles
-	//
-	//    Consumes;
-	//     - application/json
-	//    Produces:
-	//     - application/json
-	//    Schemes: http, https
-	//
-	//    Responses:
-	//	   200: successRoleArray
-	r.Get("/", rs.All)
 	return r
 }
 

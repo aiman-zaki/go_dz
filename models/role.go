@@ -1,8 +1,8 @@
 package models
 
-// SuccessRole :
-// swagger:response successRole
-type SuccessRole struct {
+// RoleResponse :
+// swagger:response role
+type RoleResponse struct {
 	// in: body
 	Body struct {
 		//the success message
@@ -11,9 +11,9 @@ type SuccessRole struct {
 	}
 }
 
-// SuccessRoleArray :
-// swagger:response successRoleArray
-type SuccessRoleArray struct {
+// RolesResponse :
+// swagger:response roles
+type RolesResponse struct {
 	// in: body
 	Body struct {
 		//the success message

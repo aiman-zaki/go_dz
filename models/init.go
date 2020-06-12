@@ -20,11 +20,11 @@ func InitLekorRiangDb() {
 		(*Supplier)(nil),
 		(*Product)(nil),
 		(*PriceProductUnit)(nil),
-		(*Payment)(nil),
 		(*Stock)(nil),
 		(*StockStatus)(nil),
-		(*RecordStock)(nil),
+		(*StockRecord)(nil),
 		(*Supply)(nil),
+		(*Payment)(nil),
 	}
 
 	for _, model := range models {

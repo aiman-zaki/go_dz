@@ -12,20 +12,14 @@ import (
 	"github.com/go-pg/pg/v9"
 )
 
-type SupplierResources struct{}
+type StockRecordsResources struct{}
 
-// swagger:parameters createSupplier
-type SupplierWrapper struct {
-	// in:body
-	Supplier models.Supplier
-}
-
-func (rs SupplierResources) Routes() chi.Router {
+func (rs StockRecordsResources) Routes() chi.Router {
 	r := chi.NewRouter()
 	r.Route("/", func(r chi.Router) {
-		// swagger:route GET /suppliers Supplier getSuppliers
+		// swagger:route GET /stocks/{stockId}/records Stock_Records getAllRecords
 		//
-		// Get All Suppliers
+		// Get all Record of a Stock
 		//
 		//    Consumes;
 		//     - application/json
@@ -34,11 +28,11 @@ func (rs SupplierResources) Routes() chi.Router {
 		//    Schemes: http, https
 		//
 		//    Responses:
-		//	   200: suppliers
+		//	   200: stockRecords
 		r.Get("/", rs.GetAll)
-		// swagger:route POST /suppliers Supplier createSupplier
+		// swagger:route POST /stocks/{stockId}/records Stock_Records createRecord
 		//
-		// Add a Supplier
+		// Create a record for a Stock
 		//
 		//    Consumes;
 		//     - application/json
@@ -47,15 +41,14 @@ func (rs SupplierResources) Routes() chi.Router {
 		//    Schemes: http, https
 		//
 		//    Responses:
-		//	   200: supplier
+		//	   200: stockRecord
 		r.Post("/", rs.Create)
 	})
-
 	return r
 }
 
-func (rs SupplierResources) Create(w http.ResponseWriter, r *http.Request) {
-	var m models.Supplier
+func (rs StockRecordsResources) Create(w http.ResponseWriter, r *http.Request) {
+	var m models.StockRecord
 	db := pg.Connect(services.PgOptions())
 	w.Header().Set("content-type", "application/json")
 	defer db.Close()
@@ -64,15 +57,13 @@ func (rs SupplierResources) Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	json.NewEncoder(w).Encode(m)
-
 }
 
-func (rs SupplierResources) GetAll(w http.ResponseWriter, r *http.Request) {
-	var m []models.Supplier
+func (rs StockRecordsResources) GetAll(w http.ResponseWriter, r *http.Request) {
+	var m []models.StockRecord
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-	err := db.Model(&m).Select()
+	err := db.Model(&m)
 	if err != nil {
 		fmt.Println(err)
 	}

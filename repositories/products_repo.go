@@ -13,9 +13,9 @@ import (
 	"github.com/go-pg/pg/v9"
 )
 
-type ProductsResource struct{}
+type ProductResources struct{}
 
-func (rs ProductsResource) Routes() chi.Router {
+func (rs ProductResources) Routes() chi.Router {
 	r := chi.NewRouter()
 	//r.Use(jwtauth.Verifier(jwtauth.New("HS256", []byte("secret"), nil)))
 	//r.Use(jwtauth.Authenticator)
@@ -52,7 +52,7 @@ func (rs ProductsResource) Routes() chi.Router {
 		//       200:product
 		//       401:notAuthorized
 		r.Post("/", rs.Create)
-		// swagger:route POST /products/{id} Products updateProduct
+		// swagger:route PUT /products/{id} Products updateProduct
 		//
 		// Update a Product.
 		//
@@ -84,7 +84,22 @@ func (rs ProductsResource) Routes() chi.Router {
 		//       200:product
 		//       401:notAuthorized
 		r.Get("/{id}", rs.GetById)
-		r.Delete("/", rs.Delete)
+		// swagger:route DELETE /products/{id} Products deleteProductById
+		//
+		// DELETE a Product by ID.
+		//
+		//    Consumes;
+		//     - application/json
+		//    Produces:
+		//     - application/json
+		//    Schemes: http, https
+		//
+		//    Security:
+		//      Bearer:
+		//    Responses:
+		//       200:product
+		//       401:notAuthorized
+		r.Delete("/{id}", rs.Delete)
 	})
 	return r
 }
@@ -101,13 +116,13 @@ type ProductWithLimitWrapper struct {
 	PerPage     string `json:"perPage"`
 }
 
-// swagger:parameters productById updateProduct getProductById
+// swagger:parameters productById updateProduct getProductById deleteProductById
 type ProductIDWrapper struct {
 	// in:path
 	Id string `json:"id"`
 }
 
-func (rs ProductsResource) Create(w http.ResponseWriter, r *http.Request) {
+func (rs ProductResources) Create(w http.ResponseWriter, r *http.Request) {
 	var p models.Product
 	db := pg.Connect(services.PgOptions())
 	w.Header().Set("content-type", "application/json")
@@ -119,7 +134,7 @@ func (rs ProductsResource) Create(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (res ProductsResource) Update(w http.ResponseWriter, r *http.Request) {
+func (res ProductResources) Update(w http.ResponseWriter, r *http.Request) {
 	wrappers.LogRequest(r, "UpdateProduct")
 	var p models.Product
 	db := pg.Connect(services.PgOptions())
@@ -130,12 +145,11 @@ func (res ProductsResource) Update(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (res ProductsResource) Delete(w http.ResponseWriter, r *http.Request) {
+func (res ProductResources) Delete(w http.ResponseWriter, r *http.Request) {
 	wrappers.LogRequest(r, "DeleteProduct")
 	var p models.Product
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-
 	id := chi.URLParam(r, "id")
 	db.Model(&p).Where("id = ?", id).Select()
 	err := db.Delete(&p)
@@ -143,11 +157,11 @@ func (res ProductsResource) Delete(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	json.NewEncoder(w).Encode(fmt.Sprintf(`{"message":"Product succesfully deleted %d"`, p.ID))
+	json.NewEncoder(w).Encode(&p)
 
 }
 
-func (rs ProductsResource) GetById(w http.ResponseWriter, r *http.Request) {
+func (rs ProductResources) GetById(w http.ResponseWriter, r *http.Request) {
 
 	var p []models.Product
 	db := pg.Connect(services.PgOptions())
@@ -160,7 +174,7 @@ func (rs ProductsResource) GetById(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(p)
 }
 
-func (rs ProductsResource) All(w http.ResponseWriter, r *http.Request) {
+func (rs ProductResources) All(w http.ResponseWriter, r *http.Request) {
 	/*_, claims, jwtErr := jwtauth.FromContext(r.Context())
 	if jwtErr != nil {
 		fmt.Print(jwtErr)

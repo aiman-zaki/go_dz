@@ -17,12 +17,72 @@ type StocksResource struct{}
 func (rs StocksResource) Routes() chi.Router {
 	r := chi.NewRouter()
 	r.Route("/", func(r chi.Router) {
+		// swagger:route GET /stocks Stocks getAllStocks
+		//
+		// Get all Stocks
+		//
+		//    Consumes;
+		//     - application/json
+		//    Produces:
+		//     - application/json
+		//    Schemes: http, https
+		//
+		//    Responses:
+		//	   200: stocks
 		r.Get("/", rs.GetAll)
+		// swagger:route POST /stocks Stocks createStock
+		//
+		// Create a Stock
+		//
+		//    Consumes;
+		//     - application/json
+		//    Produces:
+		//     - application/json
+		//    Schemes: http, https
+		//
+		//    Responses:
+		//	   200: stock
 		r.Post("/", rs.Create)
-		r.Put("/", rs.Update)
-		r.Delete("/", rs.Delete)
+		// swagger:route PUT /stocks/{id} Stocks updateStockById
+		//
+		// Update a Stock by id
+		//
+		//    Consumes;
+		//     - application/json
+		//    Produces:
+		//     - application/json
+		//    Schemes: http, https
+		//
+		//    Responses:
+		//	   200: stock
+		r.Put("/{id}", rs.Update)
+		// swagger:route DELETE /stocks/{id} Stocks deleteStockById
+		//
+		// Delete a Stock by id
+		//
+		//    Consumes;
+		//     - application/json
+		//    Produces:
+		//     - application/json
+		//    Schemes: http, https
+		//
+		//    Responses:
+		//	   200: stock
+		r.Delete("/{id}", rs.Delete)
 	})
 	return r
+}
+
+// swagger:parameters updateStockById deleteStockById
+type idStockParam struct {
+	// in:path
+	ID int64 `json:"id"`
+}
+
+// swagger:parameters createStock
+type createStockParam struct {
+	// in:body
+	Stock *models.Stock
 }
 
 func (rs StocksResource) Create(w http.ResponseWriter, r *http.Request) {
@@ -84,5 +144,5 @@ func (rs StocksResource) Delete(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	json.NewEncoder(w).Encode(fmt.Sprintf(`{"message":"Product succesfully deleted %d"`, m.ID))
+	json.NewEncoder(w).Encode(m)
 }

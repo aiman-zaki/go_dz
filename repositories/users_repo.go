@@ -12,25 +12,12 @@ import (
 	"github.com/go-pg/pg/v9"
 )
 
-type UserResource struct{}
+type UserResources struct{}
 
-func (rs UserResource) Routes() chi.Router {
+func (rs UserResources) Routes() chi.Router {
 	r := chi.NewRouter()
 	r.Route("/", func(r chi.Router) {
-		// swagger:route POST /users Users createUser
-		//
-		// Create a User.
-		//
-		//    Consumes;
-		//     - application/json
-		//    Produces:
-		//     - application/json
-		//    Schemes: http, https
-		//
-		//    Security:
-		//      Bearer:
-		r.Post("/", rs.Create)
-		// swagger:route GET /users Users listUsers
+		// swagger:route GET /users Users getUsers
 		//
 		// Lists all users.
 		//
@@ -44,21 +31,37 @@ func (rs UserResource) Routes() chi.Router {
 		//      Bearer:
 		//
 		//
+		//    Responses:
+		//       200:users
+		//       401:notAuthorized
 		r.Get("/", rs.GetAll)
+		// swagger:route GET /users/{id} Users getUserById
+		//
+		// Get User by id.
+		//
+		//    Consumes;
+		//     - application/json
+		//    Produces:
+		//     - application/json
+		//    Schemes: http, https
+		//
+		//    Security:
+		//      Bearer:
+		//
+		//    Responses:
+		//       200:user
+		//       401:notAuthorized
 		r.Get("/{id}", rs.GetByID)
 	})
-
 	return r
 }
 
-// swagger:parameters createUser
+// swagger:parameters getUserById
 type UsersWrapper struct {
-	// in:body
-	User models.User
+	Id int64 `json:"id"`
 }
 
-func (rs UserResource) Create(w http.ResponseWriter, r *http.Request) {
-	wrappers.LogRequest(r, "CreateUser")
+func (rs UserResources) Create(w http.ResponseWriter, r *http.Request) {
 	var u models.User
 	db := pg.Connect(services.PgOptions())
 	w.Header().Set("content-type", "application/json")
@@ -67,8 +70,7 @@ func (rs UserResource) Create(w http.ResponseWriter, r *http.Request) {
 	db.Insert(&u)
 }
 
-func (rs UserResource) GetByID(w http.ResponseWriter, r *http.Request) {
-	wrappers.LogRequest(r, "GetUser")
+func (rs UserResources) GetByID(w http.ResponseWriter, r *http.Request) {
 	var u models.User
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
@@ -78,11 +80,10 @@ func (rs UserResource) GetByID(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 	json.NewEncoder(w).Encode(u)
-
 }
 
 // GetAll serves the API for Users
-func (rs UserResource) GetAll(w http.ResponseWriter, r *http.Request) {
+func (rs UserResources) GetAll(w http.ResponseWriter, r *http.Request) {
 	var u []models.User
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
@@ -90,7 +91,6 @@ func (rs UserResource) GetAll(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-
 	json.NewEncoder(w).Encode(u)
 
 }
