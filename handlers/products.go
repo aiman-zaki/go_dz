@@ -1,4 +1,4 @@
-package repositories
+package handlers
 
 import (
 	"encoding/json"
@@ -7,10 +7,8 @@ import (
 	"strconv"
 
 	"github.com/aiman-zaki/go_dz_http/models"
-	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/aiman-zaki/go_dz_http/wrappers"
 	"github.com/go-chi/chi"
-	"github.com/go-pg/pg/v9"
 )
 
 type ProductResources struct{}
@@ -35,7 +33,7 @@ func (rs ProductResources) Routes() chi.Router {
 		//     Responses:
 		//       200:products
 		//       401:notAuthorized
-		r.Get("/", rs.All)
+		r.Get("/", rs.Read)
 		// swagger:route POST /products Products createProduct
 		//
 		// Create a Product.
@@ -83,7 +81,7 @@ func (rs ProductResources) Routes() chi.Router {
 		//    Responses:
 		//       200:product
 		//       401:notAuthorized
-		r.Get("/{id}", rs.GetById)
+		r.Get("/{id}", rs.ReadByID)
 		// swagger:route DELETE /products/{id} Products deleteProductById
 		//
 		// DELETE a Product by ID.
@@ -101,7 +99,8 @@ func (rs ProductResources) Routes() chi.Router {
 		//       401:notAuthorized
 		r.Delete("/{id}", rs.Delete)
 	})
-	return r
+	return PriceProductUnitResources.Routes(PriceProductUnitResources{}, r)
+
 }
 
 // swagger:parameters createProduct
@@ -110,77 +109,50 @@ type ProductWrapper struct {
 	Product models.Product
 }
 
-// swagger:parameters productById updateProduct getProducts
-type ProductWithLimitWrapper struct {
-	CurrentPage string `json:"currentPage"`
-	PerPage     string `json:"perPage"`
-}
-
-// swagger:parameters productById updateProduct getProductById deleteProductById
-type ProductIDWrapper struct {
-	// in:path
-	Id string `json:"id"`
-}
-
 func (rs ProductResources) Create(w http.ResponseWriter, r *http.Request) {
-	var p models.Product
-	db := pg.Connect(services.PgOptions())
-	w.Header().Set("content-type", "application/json")
-	defer db.Close()
-	wrappers.JSONDecodeWrapper(w, r, &p)
-	err := db.Insert(&p)
-	if err != nil {
-		fmt.Println(err)
-	}
+	var pw models.ProductWrapper
+	wrappers.JSONDecodeWrapper(w, r, &pw.Single)
+	pw.Create()
+	json.NewEncoder(w).Encode(pw.Single)
+
 }
 
 func (res ProductResources) Update(w http.ResponseWriter, r *http.Request) {
-	wrappers.LogRequest(r, "UpdateProduct")
-	var p models.Product
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
-	wrappers.JSONDecodeWrapper(w, r, &p)
-	db.Update(p)
-	json.NewEncoder(w).Encode(p)
+	var pw models.ProductWrapper
+	pw.Single.ID = IdAndConvert(r, "id")
+	if pw.Single.ID == -1 {
+		http.Error(w, "Invalid ID", 400)
+		return
+	}
+	wrappers.JSONDecodeWrapper(w, r, &pw.Single)
+	pw.Update()
+	json.NewEncoder(w).Encode(pw.Single)
 
 }
 
 func (res ProductResources) Delete(w http.ResponseWriter, r *http.Request) {
-	wrappers.LogRequest(r, "DeleteProduct")
-	var p models.Product
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
-	id := chi.URLParam(r, "id")
-	db.Model(&p).Where("id = ?", id).Select()
-	err := db.Delete(&p)
-	if err != nil {
-		fmt.Println(err)
-	}
+	var pw models.ProductWrapper
+	pw.Single.ID = IdAndConvert(r, "id")
 
-	json.NewEncoder(w).Encode(&p)
+	pw.Delete()
+	json.NewEncoder(w).Encode(&pw.Single)
 
 }
 
-func (rs ProductResources) GetById(w http.ResponseWriter, r *http.Request) {
+func (rs ProductResources) ReadByID(w http.ResponseWriter, r *http.Request) {
+	var pw models.ProductWrapper
+	pw.Single.ID = IdAndConvert(r, "id")
 
-	var p []models.Product
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
-	err := db.Model(&p).Select()
-	if err != nil {
-		fmt.Println(err)
-
-	}
-	json.NewEncoder(w).Encode(p)
+	pw.ReadById()
+	json.NewEncoder(w).Encode(pw.Single)
 }
 
-func (rs ProductResources) All(w http.ResponseWriter, r *http.Request) {
+func (rs ProductResources) Read(w http.ResponseWriter, r *http.Request) {
 	/*_, claims, jwtErr := jwtauth.FromContext(r.Context())
 	if jwtErr != nil {
 		fmt.Print(jwtErr)
 	}
 	fmt.Println(claims)*/
-	fmt.Println(r.URL.Query())
 	perPage := r.URL.Query()["perPage"]
 	currentPage := r.URL.Query()["currentPage"]
 
@@ -189,28 +161,18 @@ func (rs ProductResources) All(w http.ResponseWriter, r *http.Request) {
 		perPageInt, _ := strconv.Atoi(perPage[0])
 		currentPageInt, _ := strconv.Atoi(currentPage[0])
 		getProductsWithLimit(w, perPageInt, currentPageInt)
-	} else {
-		fmt.Println("No Limit")
-		var p []models.Product
-		db := pg.Connect(services.PgOptions())
-		defer db.Close()
-		err := db.Model(&p).Select()
-		if err != nil {
-			fmt.Println(err)
-
-		}
-		json.NewEncoder(w).Encode(p)
-
+		return
 	}
+	fmt.Println("No Limit")
+	var pw models.ProductWrapper
+	pw.Read()
+	json.NewEncoder(w).Encode(pw.Array)
 }
 
 func getProductsWithLimit(w http.ResponseWriter, perPage int, currentPage int) {
-	var p []models.Product
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
-	err := db.Model(&p).Offset(perPage * (currentPage - 1)).Limit(perPage).Select()
-	if err != nil {
-		fmt.Println(err)
-	}
-	json.NewEncoder(w).Encode(p)
+	var pw models.ProductWrapper
+	pw.PerPage = perPage
+	pw.CurrentPage = currentPage
+	pw.ReadWithLimit()
+	json.NewEncoder(w).Encode(pw.Single)
 }

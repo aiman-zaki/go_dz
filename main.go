@@ -1,4 +1,4 @@
-// Package repositories DZ API.
+// Package handlers DZ API.
 //
 //     Schemes: http, https
 //     Host: localhost:8181
@@ -30,8 +30,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/aiman-zaki/go_dz_http/handlers"
 	"github.com/aiman-zaki/go_dz_http/models"
-	"github.com/aiman-zaki/go_dz_http/repositories"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
@@ -65,7 +65,7 @@ func FileServer(r chi.Router, basePath string, path string, root http.FileSystem
 
 func main() {
 
-	models.InitLekorRiangDb()
+	models.InitDB()
 
 	r := chi.NewRouter()
 
@@ -75,12 +75,14 @@ func main() {
 	r.Use(httplog.RequestLogger(logger))
 	r.Use(middleware.Heartbeat("/ping"))
 
-	r.Mount("/api/users", repositories.UserResource.Routes(repositories.UserResource{}))
-	r.Mount("/api/products", repositories.ProductsResource.Routes(repositories.ProductsResource{}))
-	r.Mount("/api/stores", repositories.StoresResource.Routes(repositories.StoresResource{}))
-	r.Mount("/api/auth", repositories.AuthResources.Routes(repositories.AuthResources{}))
-	r.Mount("/api/role", repositories.RoleResources.Routes(repositories.RoleResources{}))
-	r.Mount("/api/suppliers", repositories.SuppliersResource.Routes(repositories.SuppliersResource{}))
+	r.Mount("/api/users", handlers.UserResources.Routes(handlers.UserResources{}))
+	r.Mount("/api/products", handlers.ProductResources.Routes(handlers.ProductResources{}))
+	r.Mount("/api/branches", handlers.BranchResources.Routes(handlers.BranchResources{}))
+	r.Mount("/api/auth", handlers.AuthResources.Routes(handlers.AuthResources{}))
+	r.Mount("/api/role", handlers.RoleResources.Routes(handlers.RoleResources{}))
+	r.Mount("/api/suppliers", handlers.SupplierResources.Routes(handlers.SupplierResources{}))
+	r.Mount("/api/supplies", handlers.SupplyResources.Routes(handlers.SupplyResources{}))
+	r.Mount("/api/configurations/units", handlers.UnitResources.Routes(handlers.UnitResources{}))
 
 	//swagger-ui serve
 	fs := http.FileServer(http.Dir("./swagger_ui"))
@@ -92,6 +94,6 @@ func main() {
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		AllowCredentials: true,
 	})
-	fmt.Println("Server running at :8181")
+	fmt.Println("\nServer running at :8181")
 	log.Fatal(http.ListenAndServe(":8181", c.Handler(r)))
 }

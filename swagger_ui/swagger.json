@@ -88,6 +88,279 @@
         }
       }
     },
+    "/branches": {
+      "get": {
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Branches"
+        ],
+        "summary": "Get all Branches.",
+        "operationId": "getBranches",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/branches"
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Branches"
+        ],
+        "summary": "Create a Branch.",
+        "operationId": "createBranch",
+        "parameters": [
+          {
+            "name": "Branch",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Branch"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/branch"
+          }
+        }
+      }
+    },
+    "/branches/{id}": {
+      "get": {
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Branches"
+        ],
+        "summary": "Get a Branch by Id.",
+        "operationId": "getBranchById",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/branches"
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Branches"
+        ],
+        "summary": "Update a Branches.",
+        "operationId": "updateBranchById",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ID",
+            "name": "id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/branch"
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Branches"
+        ],
+        "summary": "Delete a Branch by Id.",
+        "operationId": "deleteBranchById",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "ID",
+            "name": "id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/branch"
+          }
+        }
+      }
+    },
+    "/configuration/stock-statuses": {
+      "get": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Configuration_StockStatus"
+        ],
+        "summary": "Get all StockStatus",
+        "operationId": "getAllStockStatuses",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/stockStatuses"
+          }
+        }
+      },
+      "post": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Configuration_StockStatus"
+        ],
+        "summary": "Create a StockStatus",
+        "operationId": "createStockStatus",
+        "parameters": [
+          {
+            "x-go-name": "StockStatus",
+            "name": "stock_status",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/StockStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/stockStatus"
+          }
+        }
+      }
+    },
+    "/configurations/units": {
+      "get": {
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Configuration_Unit"
+        ],
+        "summary": "Get all Units.",
+        "operationId": "getUnits",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/units"
+          },
+          "401": {
+            "$ref": "#/responses/notAuthorized"
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Configuration_Unit"
+        ],
+        "summary": "Create a Unit.",
+        "operationId": "createUnit",
+        "parameters": [
+          {
+            "name": "Unit",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Unit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/unit"
+          },
+          "401": {
+            "$ref": "#/responses/notAuthorized"
+          }
+        }
+      }
+    },
     "/products": {
       "get": {
         "security": [
@@ -108,6 +381,20 @@
         ],
         "summary": "Get all Products.",
         "operationId": "getProducts",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "CurrentPage",
+            "name": "currentPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "PerPage",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "$ref": "#/responses/products"
@@ -155,6 +442,264 @@
         }
       }
     },
+    "/products/{id}": {
+      "get": {
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Products"
+        ],
+        "summary": "GET a Product by ID.",
+        "operationId": "getProductById",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/product"
+          },
+          "401": {
+            "$ref": "#/responses/notAuthorized"
+          }
+        }
+      },
+      "put": {
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Products"
+        ],
+        "summary": "Update a Product.",
+        "operationId": "updateProduct",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "CurrentPage",
+            "name": "currentPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "PerPage",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-go-name": "Id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/product"
+          },
+          "401": {
+            "$ref": "#/responses/notAuthorized"
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Products"
+        ],
+        "summary": "DELETE a Product by ID.",
+        "operationId": "deleteProductById",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "Id",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/product"
+          },
+          "401": {
+            "$ref": "#/responses/notAuthorized"
+          }
+        }
+      }
+    },
+    "/products/{productId}/prices": {
+      "get": {
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Product_PriceUnit"
+        ],
+        "summary": "Get all PriceProductUnit.",
+        "operationId": "getPriceProductUnits",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "ProductId",
+            "name": "productId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/pricePerUnits"
+          },
+          "401": {
+            "$ref": "#/responses/notAuthorized"
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Product_PriceUnit"
+        ],
+        "summary": "Create a Price for Product Per Unit.",
+        "operationId": "createPriceProductUnit",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "ProductId",
+            "name": "productId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "PriceProductUnit",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/PriceProductUnit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/pricePerUnit"
+          },
+          "401": {
+            "$ref": "#/responses/notAuthorized"
+          }
+        }
+      }
+    },
+    "/products/{productId}/{unitId}/prices": {
+      "get": {
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Product_PriceUnit"
+        ],
+        "summary": "Get a PriceProductUnit.",
+        "operationId": "getPriceProductUnit",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "UnitId",
+            "name": "unitId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "ProductId",
+            "name": "productId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/pricePerUnit"
+          },
+          "401": {
+            "$ref": "#/responses/notAuthorized"
+          }
+        }
+      }
+    },
     "/role": {
       "get": {
         "description": "Consumes;\napplication/json",
@@ -172,7 +717,7 @@
         "operationId": "getRoles",
         "responses": {
           "200": {
-            "$ref": "#/responses/successRoleArray"
+            "$ref": "#/responses/roles"
           }
         }
       },
@@ -201,10 +746,338 @@
         ],
         "responses": {
           "200": {
-            "$ref": "#/responses/successRole"
+            "$ref": "#/responses/role"
           },
           "422": {
             "$ref": "#/responses/dataAlreadyExisted"
+          }
+        }
+      }
+    },
+    "/stocks": {
+      "get": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Stocks"
+        ],
+        "summary": "Get all Stocks",
+        "operationId": "getAllStocks",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/stocks"
+          }
+        }
+      },
+      "post": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Stocks"
+        ],
+        "summary": "Create a Stock",
+        "operationId": "createStock",
+        "parameters": [
+          {
+            "name": "Stock",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Stock"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/stock"
+          }
+        }
+      }
+    },
+    "/stocks/{id}": {
+      "put": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Stocks"
+        ],
+        "summary": "Update a Stock by id",
+        "operationId": "updateStockById",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/stock"
+          }
+        }
+      },
+      "delete": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Stocks"
+        ],
+        "summary": "Delete a Stock by id",
+        "operationId": "deleteStockById",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/stock"
+          }
+        }
+      }
+    },
+    "/stocks/{stockId}/records": {
+      "get": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Stock_Records"
+        ],
+        "summary": "Get all Record of a Stock",
+        "operationId": "getAllRecords",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/stockRecords"
+          }
+        }
+      },
+      "post": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Stock_Records"
+        ],
+        "summary": "Create a record for a Stock",
+        "operationId": "createRecord",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/stockRecord"
+          }
+        }
+      }
+    },
+    "/suppliers": {
+      "get": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Supplier"
+        ],
+        "summary": "Get All Suppliers",
+        "operationId": "getSuppliers",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/suppliers"
+          }
+        }
+      },
+      "post": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Supplier"
+        ],
+        "summary": "Add a Supplier",
+        "operationId": "createSupplier",
+        "parameters": [
+          {
+            "name": "Supplier",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Supplier"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/supplier"
+          }
+        }
+      }
+    },
+    "/supplies": {
+      "get": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Supplies"
+        ],
+        "summary": "Get all Supply",
+        "operationId": "getAllSupply",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/supplies"
+          }
+        }
+      },
+      "post": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Supplies"
+        ],
+        "summary": "Create a Supply",
+        "operationId": "createSupply",
+        "parameters": [
+          {
+            "x-go-name": "Supply",
+            "name": "supply",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Supply"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/supply"
+          }
+        }
+      }
+    },
+    "/supplies/{supplyId}/payments": {
+      "get": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Supply_Payments"
+        ],
+        "summary": "Get all Payments",
+        "operationId": "getPayments",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "SupplyID",
+            "name": "supplyId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/payments"
+          }
+        }
+      },
+      "post": {
+        "description": "Consumes;\napplication/json",
+        "produces": [
+          "application/json"
+        ],
+        "schemes": [
+          "http",
+          "https"
+        ],
+        "tags": [
+          "Supply_Payments"
+        ],
+        "summary": "Create a Payment",
+        "operationId": "createPayment",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "SupplyID",
+            "name": "supplyId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "x-go-name": "Payment",
+            "name": "payment",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/Payment"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/payment"
           }
         }
       }
@@ -228,9 +1101,19 @@
           "Users"
         ],
         "summary": "Lists all users.",
-        "operationId": "listUsers"
-      },
-      "post": {
+        "operationId": "getUsers",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/users"
+          },
+          "401": {
+            "$ref": "#/responses/notAuthorized"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
         "security": [
           {
             "Bearer": []
@@ -247,17 +1130,26 @@
         "tags": [
           "Users"
         ],
-        "summary": "Create a User.",
-        "operationId": "createUser",
+        "summary": "Get User by id.",
+        "operationId": "getUserById",
         "parameters": [
           {
-            "name": "User",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/User"
-            }
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "ID",
+            "name": "id",
+            "in": "path",
+            "required": true
           }
-        ]
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/user"
+          },
+          "401": {
+            "$ref": "#/responses/notAuthorized"
+          }
+        }
       }
     }
   },
@@ -308,6 +1200,125 @@
       },
       "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
     },
+    "Branch": {
+      "description": "Branch is a model bro",
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "x-go-name": "Address"
+        },
+        "coordinate": {
+          "$ref": "#/definitions/Coordinate"
+        },
+        "coordinate_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CoordinateId"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
+    },
+    "Coordinate": {
+      "description": "Coordinate is a model bro",
+      "type": "object",
+      "properties": {
+        "date_created": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DateCreated"
+        },
+        "date_updated": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DateUpdated"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID",
+          "readOnly": true
+        },
+        "latitude": {
+          "type": "string",
+          "x-go-name": "Latitude"
+        },
+        "longitude": {
+          "type": "string",
+          "x-go-name": "Longitude"
+        }
+      },
+      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
+    },
+    "Payment": {
+      "type": "object",
+      "title": "Payment :",
+      "properties": {
+        "amount": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "Amount"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID",
+          "readOnly": true
+        },
+        "supply": {
+          "$ref": "#/definitions/Supply"
+        },
+        "supply_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "SupplyID"
+        }
+      },
+      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
+    },
+    "PriceProductUnit": {
+      "description": "PriceProductUnit : model for bridge between product and price to determine the price for the unit\nswagger: model",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "x-go-name": "ID",
+          "readOnly": true
+        },
+        "price": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "Price"
+        },
+        "product": {
+          "$ref": "#/definitions/Product"
+        },
+        "product_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ProductID"
+        },
+        "unit": {
+          "$ref": "#/definitions/Unit"
+        },
+        "unit_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "UnitID"
+        }
+      },
+      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
+    },
     "Product": {
       "description": "Product represents the product for this application",
       "type": "object",
@@ -334,18 +1345,6 @@
           "description": "the name for the product",
           "type": "string",
           "x-go-name": "Name"
-        },
-        "price_per_bundle": {
-          "description": "the price_per_bundle for the product",
-          "type": "number",
-          "format": "double",
-          "x-go-name": "PricePerBundle"
-        },
-        "price_per_unit": {
-          "description": "the price_per_unit for the product",
-          "type": "number",
-          "format": "double",
-          "x-go-name": "PricePerUnit"
         }
       },
       "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
@@ -365,6 +1364,241 @@
           "description": "the role",
           "type": "string",
           "x-go-name": "Role"
+        }
+      },
+      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
+    },
+    "Stock": {
+      "description": "Stock : model",
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Amount"
+        },
+        "branch": {
+          "$ref": "#/definitions/Branch"
+        },
+        "branch_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "BranchID"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID",
+          "readOnly": true
+        },
+        "product": {
+          "$ref": "#/definitions/Product"
+        },
+        "product_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ProductID"
+        },
+        "unit": {
+          "$ref": "#/definitions/Unit"
+        },
+        "unit_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "UnitID"
+        }
+      },
+      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
+    },
+    "StockRecord": {
+      "type": "object",
+      "title": "StockRecord :",
+      "properties": {
+        "Stock": {
+          "$ref": "#/definitions/Stock"
+        },
+        "StockStatus": {
+          "$ref": "#/definitions/StockStatus"
+        },
+        "amount": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Amount"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID",
+          "readOnly": true
+        },
+        "stock_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "StockID"
+        },
+        "stock_status_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "StockStatusID"
+        }
+      },
+      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
+    },
+    "StockStatus": {
+      "description": "swagger: model",
+      "type": "object",
+      "title": "StockStatus :",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "status": {
+          "type": "string",
+          "x-go-name": "Status"
+        }
+      },
+      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
+    },
+    "Supplier": {
+      "description": "Supplier represents the supplier for dz",
+      "type": "object",
+      "properties": {
+        "address": {
+          "description": "address of org or person",
+          "type": "string",
+          "x-go-name": "Address"
+        },
+        "coordinate": {
+          "$ref": "#/definitions/Coordinate"
+        },
+        "coordinate_id": {
+          "description": "the location of premiese",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "CoordinateID"
+        },
+        "id": {
+          "description": "the id",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID",
+          "readOnly": true
+        },
+        "name": {
+          "description": "name of org or person",
+          "type": "string",
+          "x-go-name": "Name"
+        }
+      },
+      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
+    },
+    "Supply": {
+      "type": "object",
+      "title": "Supply :",
+      "properties": {
+        "accepted_by": {
+          "$ref": "#/definitions/User"
+        },
+        "accepted_by_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "AcceptedByID"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "requested_by": {
+          "$ref": "#/definitions/User"
+        },
+        "requested_by_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RequestedByID"
+        },
+        "stock": {
+          "$ref": "#/definitions/Stock"
+        },
+        "stock_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "StockID"
+        },
+        "supplier": {
+          "$ref": "#/definitions/Supplier"
+        },
+        "supplier_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "SupplierID"
+        },
+        "supply_unit": {
+          "$ref": "#/definitions/SupplyUnit"
+        },
+        "supply_unit_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "SupplyUnitID"
+        },
+        "total_amount": {
+          "type": "number",
+          "format": "double",
+          "x-go-name": "TotalAmount"
+        }
+      },
+      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
+    },
+    "SupplyUnit": {
+      "type": "object",
+      "title": "SupplyUnit :",
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "Amount"
+        },
+        "date_created": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DateCreated"
+        },
+        "date_updated": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DateUpdated"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "unit": {
+          "$ref": "#/definitions/Unit"
+        },
+        "unit_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "UnitID"
+        }
+      },
+      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
+    },
+    "Unit": {
+      "description": "Unit represents the product unit for this application",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID",
+          "readOnly": true
+        },
+        "key": {
+          "type": "string",
+          "x-go-name": "Key"
         }
       },
       "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
@@ -399,7 +1633,8 @@
           "description": "the id for this user",
           "type": "integer",
           "format": "int64",
-          "x-go-name": "ID"
+          "x-go-name": "ID",
+          "readOnly": true
         },
         "last_name": {
           "description": "the last name for this user",
@@ -418,6 +1653,42 @@
     }
   },
   "responses": {
+    "branch": {
+      "description": "BranchResponse : List a branch",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "branch": {
+            "$ref": "#/definitions/Branch"
+          },
+          "message": {
+            "description": "the success message",
+            "type": "string",
+            "x-go-name": "Message"
+          }
+        }
+      }
+    },
+    "branches": {
+      "description": "BranchesResponse : List all branches",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "branches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Branch"
+            },
+            "x-go-name": "Branch"
+          },
+          "message": {
+            "description": "the success message",
+            "type": "string",
+            "x-go-name": "Message"
+          }
+        }
+      }
+    },
     "dataAlreadyExisted": {
       "description": "DataAlreadyExisted :",
       "schema": {
@@ -455,13 +1726,83 @@
         }
       }
     },
-    "notAthorized": {
+    "notAuthorized": {
       "description": "NotAuthorized :",
       "schema": {
         "type": "object",
         "properties": {
           "Message": {
             "type": "string"
+          }
+        }
+      }
+    },
+    "payment": {
+      "description": "PaymentResponse :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "payment": {
+            "$ref": "#/definitions/Payment"
+          }
+        }
+      }
+    },
+    "payments": {
+      "description": "PaymentsResponse :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "payments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Payment"
+            },
+            "x-go-name": "Payment"
+          }
+        }
+      }
+    },
+    "pricePerUnit": {
+      "description": "PriceProductUnitsResponse : List a products",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "the success message",
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "price": {
+            "$ref": "#/definitions/PriceProductUnit"
+          }
+        }
+      }
+    },
+    "pricePerUnits": {
+      "description": "PriceProductUnitResponse : List all products",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "the success message",
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "prices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/PriceProductUnit"
+            },
+            "x-go-name": "PriceProductUnit"
           }
         }
       }
@@ -502,8 +1843,8 @@
         }
       }
     },
-    "successRole": {
-      "description": "SuccessRole :",
+    "role": {
+      "description": "RoleResponse :",
       "schema": {
         "type": "object",
         "properties": {
@@ -518,8 +1859,8 @@
         }
       }
     },
-    "successRoleArray": {
-      "description": "SuccessRoleArray :",
+    "roles": {
+      "description": "RolesResponse :",
       "schema": {
         "type": "object",
         "properties": {
@@ -534,6 +1875,263 @@
               "$ref": "#/definitions/Role"
             },
             "x-go-name": "Role"
+          }
+        }
+      }
+    },
+    "stock": {
+      "description": "StockResponse :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "stock": {
+            "$ref": "#/definitions/Stock"
+          }
+        }
+      }
+    },
+    "stockRecord": {
+      "description": "StockRecordResponse :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "record_stock": {
+            "$ref": "#/definitions/StockRecord"
+          }
+        }
+      },
+      "headers": {
+        "Body": {}
+      }
+    },
+    "stockRecords": {
+      "description": "StockRecordsResponse :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "record_stocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/StockRecord"
+            },
+            "x-go-name": "RecordStock"
+          }
+        }
+      },
+      "headers": {
+        "Body": {}
+      }
+    },
+    "stockStatus": {
+      "description": "StockStatusResponse :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "stock_status": {
+            "$ref": "#/definitions/StockStatus"
+          }
+        }
+      },
+      "headers": {
+        "Body": {}
+      }
+    },
+    "stockStatuses": {
+      "description": "StockStatusesResponse :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "stock_statuses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/StockStatus"
+            },
+            "x-go-name": "StockStatuses"
+          }
+        }
+      },
+      "headers": {
+        "Body": {}
+      }
+    },
+    "stocks": {
+      "description": "StocksResponse :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "stocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Stock"
+            },
+            "x-go-name": "Stock"
+          }
+        }
+      }
+    },
+    "supplier": {
+      "description": "SupplierResponse :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "the success message",
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "supplier": {
+            "$ref": "#/definitions/Supplier"
+          }
+        }
+      }
+    },
+    "suppliers": {
+      "description": "SuppliersResponse :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "the success message",
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "suppliers": {
+            "description": "the credential given once successfully logined",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Supplier"
+            },
+            "x-go-name": "Supplier"
+          }
+        }
+      }
+    },
+    "supplies": {
+      "description": "SuppliesResponse :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "supplies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Supply"
+            },
+            "x-go-name": "Supply"
+          }
+        }
+      }
+    },
+    "supply": {
+      "description": "SupplyResponse :",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "supply": {
+            "$ref": "#/definitions/Supply"
+          }
+        }
+      }
+    },
+    "unit": {
+      "description": "UnitResponse : List a Unit",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "the success message",
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "unit": {
+            "$ref": "#/definitions/Unit"
+          }
+        }
+      }
+    },
+    "units": {
+      "description": "UnitsResponse : List a Unit",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "the success message",
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "units": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Unit"
+            },
+            "x-go-name": "Unit"
+          }
+        }
+      }
+    },
+    "user": {
+      "description": "UserResponse : List all users",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "the success message",
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "user": {
+            "$ref": "#/definitions/User"
+          }
+        }
+      }
+    },
+    "users": {
+      "description": "UsersResponse : List all users",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "the success message",
+            "type": "string",
+            "x-go-name": "Message"
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/User"
+            },
+            "x-go-name": "User"
           }
         }
       }

@@ -1,34 +1,15 @@
 package models
 
 import (
+	"errors"
 	"log"
 
+	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/jwtauth"
+	"github.com/go-pg/pg/v9"
 	"golang.org/x/crypto/bcrypt"
 )
-
-// ValidCredential :
-// swagger:response validCredential
-type ValidCredential struct {
-	// in: body
-	Body struct {
-		//the success message
-		Message string `json:"message"`
-		// the credential given once successfully logined
-		Auth *Auth `json:"auth"`
-	}
-}
-
-// InvalidCredential :
-// swagger:response invalidCredential
-type InvalidCredential struct {
-	// in: body
-	Body struct {
-		//the error message
-		Message string `json:"message"`
-	}
-}
 
 // Auth represents the Authentication Model for this application
 //
@@ -54,6 +35,59 @@ type Auth struct {
 	RoleID int64 `json:"role_id"`
 	// swagger:ignore
 	Role *Role `json:"role" pg:"fk:role_id"`
+}
+
+type AuthWrapper struct {
+	Auth Auth
+	User User
+}
+
+func (aw *AuthWrapper) Register() error {
+	db := pg.Connect(services.PgOptions())
+	count, err := db.Model(&aw.Auth).
+		Where("email = ?", aw.Auth.Email).
+		Count()
+
+	if err != nil {
+		return err
+	}
+
+	if count > 0 {
+		return errors.New("Account Existed")
+	}
+	hashed := Auth.HashAndSalt(Auth{}, []byte(aw.Auth.Password))
+	aw.Auth.Password = hashed
+	db.Insert(&aw.Auth)
+	aw.User.ID = aw.Auth.ID
+	db.Insert(&aw.User)
+	return nil
+
+}
+
+func (aw *AuthWrapper) Login() error {
+	db := pg.Connect(services.PgOptions())
+	db.AddQueryHook(services.DbLogger{})
+	plainPassword := aw.Auth.Password
+	count, err := db.Model(&aw.Auth).
+		Where("email = ?", aw.Auth.Email).
+		SelectAndCount()
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		valid := Auth.ComparePasswords(Auth{}, aw.Auth.Password, []byte(plainPassword))
+		if valid {
+			err := db.Model(&aw.User).
+				Where(`"user"."id" = ?`, aw.Auth.ID).
+				Relation("Auth").
+				Select()
+			if err != nil {
+				return err
+			}
+			Auth.GenerateToken(Auth{}, &aw.Auth)
+		}
+	}
+	return nil
 }
 
 // GenerateToken : Generate JWT Token

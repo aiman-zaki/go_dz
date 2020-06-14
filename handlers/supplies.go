@@ -1,15 +1,12 @@
-package repositories
+package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/aiman-zaki/go_dz_http/models"
-	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/aiman-zaki/go_dz_http/wrappers"
 	"github.com/go-chi/chi"
-	"github.com/go-pg/pg/v9"
 )
 
 type SupplyResources struct{}
@@ -42,9 +39,9 @@ func (rs SupplyResources) Routes() chi.Router {
 		//
 		//    Responses:
 		//	   200: supplies
-		r.Get("/", rs.GetAll)
+		r.Get("/", rs.Read)
 	})
-	return r
+	return PaymentResources.Routes(PaymentResources{}, r)
 
 }
 
@@ -55,24 +52,33 @@ type createSupplyParam struct {
 }
 
 func (rs SupplyResources) Create(w http.ResponseWriter, r *http.Request) {
-	var p models.Supply
-	db := pg.Connect(services.PgOptions())
-	w.Header().Set("content-type", "application/json")
-	defer db.Close()
-	wrappers.JSONDecodeWrapper(w, r, &p)
-	err := db.Insert(&p)
+	var sw models.SupplyWrapper
+	wrappers.JSONDecodeWrapper(w, r, &sw.Single)
+	err := sw.Create()
 	if err != nil {
-		fmt.Println(err)
+		http.Error(w, err.Error(), 400)
 	}
+	json.NewEncoder(w).Encode(sw.Single)
+
 }
 
-func (rs SupplyResources) GetAll(w http.ResponseWriter, r *http.Request) {
-	var m []models.Supply
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
-	err := db.Model(&m).Select()
+func (rs SupplyResources) Read(w http.ResponseWriter, r *http.Request) {
+	var sw models.SupplyWrapper
+	err := sw.Read()
 	if err != nil {
-		fmt.Println(err)
+		http.Error(w, err.Error(), 400)
 	}
-	json.NewEncoder(w).Encode(m)
+	json.NewEncoder(w).Encode(sw.Array)
+}
+
+func (res SupplyResources) Update(w http.ResponseWriter, r *http.Request) {
+	var sw models.SupplyWrapper
+	id := IdAndConvert(r, "id")
+	sw.Single.ID = id
+	wrappers.JSONDecodeWrapper(w, r, &sw.Single)
+	err := sw.Update()
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+	}
+	json.NewEncoder(w).Encode(sw.Single)
 }

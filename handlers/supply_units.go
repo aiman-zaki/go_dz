@@ -1,14 +1,12 @@
-package repositories
+package handlers
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 
 	"github.com/aiman-zaki/go_dz_http/models"
-	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/aiman-zaki/go_dz_http/wrappers"
 	"github.com/go-chi/chi"
-	"github.com/go-pg/pg/v9"
 )
 
 type SupplyUnitResources struct{}
@@ -19,17 +17,16 @@ func (rs SupplyUnitResources) Routes() chi.Router {
 
 	})
 	return r
-
 }
 
 func (rs SupplyUnitResources) Create(w http.ResponseWriter, r *http.Request) {
-	var m models.SupplyUnit
-	db := pg.Connect(services.PgOptions())
-	w.Header().Set("content-type", "application/json")
-	defer db.Close()
-	wrappers.JSONDecodeWrapper(w, r, &m)
-	err := db.Insert(&m)
+	var suw models.SupplyUnitWrapper
+	wrappers.JSONDecodeWrapper(w, r, &suw.Single)
+	err := suw.Create()
 	if err != nil {
-		fmt.Println(err)
+		http.Error(w, err.Error(), 400)
+		return
 	}
+	json.NewEncoder(w).Encode(suw.Single)
+
 }

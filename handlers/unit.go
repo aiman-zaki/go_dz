@@ -1,24 +1,43 @@
-package repositories
+package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/aiman-zaki/go_dz_http/models"
-	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/aiman-zaki/go_dz_http/wrappers"
 	"github.com/go-chi/chi"
-	"github.com/go-pg/pg/v9"
 )
 
 type UnitResources struct {
 }
 
+// UnitResponse : List a Unit
+// swagger:response unit
+type UnitResponse struct {
+	// in: body
+	Body struct {
+		//the success message
+		Message string       `json:"message"`
+		Unit    *models.Unit `json:"unit"`
+	}
+}
+
+// UnitsResponse : List a Unit
+// swagger:response units
+type UnitsResponse struct {
+	// in: body
+	Body struct {
+		//the success message
+		Message string         `json:"message"`
+		Unit    *[]models.Unit `json:"units"`
+	}
+}
+
 func (rs UnitResources) Routes() chi.Router {
 	r := chi.NewRouter()
 	r.Route("/", func(r chi.Router) {
-		// swagger:route GET /configuration/units Configuration_Unit getUnits
+		// swagger:route GET /configurations/units Configuration_Unit getUnits
 		//
 		// Get all Units.
 		//
@@ -34,7 +53,7 @@ func (rs UnitResources) Routes() chi.Router {
 		//       200:units
 		//       401:notAuthorized
 		r.Get("/", rs.GetAll)
-		// swagger:route POST /configuration/units Configuration_Unit createUnit
+		// swagger:route POST /configurations/units Configuration_Unit createUnit
 		//
 		// Create a Unit.
 		//
@@ -67,25 +86,16 @@ type UnitsWrapper struct {
 }
 
 func (rs UnitResources) Create(w http.ResponseWriter, r *http.Request) {
-	var m models.Unit
-	db := pg.Connect(services.PgOptions())
+	var mw models.UnitWrapper
 	w.Header().Set("content-type", "application/json")
-	defer db.Close()
-	wrappers.JSONDecodeWrapper(w, r, &m)
-	err := db.Insert(&m)
-	if err != nil {
-		fmt.Println(err)
-	}
+	wrappers.JSONDecodeWrapper(w, r, &mw.Single)
+	mw.Create()
+	json.NewEncoder(w).Encode(mw.Single)
+
 }
 
 func (rs UnitResources) GetAll(w http.ResponseWriter, r *http.Request) {
-	var m []models.Unit
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
-	err := db.Model(&m).Select()
-	if err != nil {
-		fmt.Println(err)
-
-	}
-	json.NewEncoder(w).Encode(m)
+	var mw models.UnitWrapper
+	mw.Read()
+	json.NewEncoder(w).Encode(mw.Array)
 }

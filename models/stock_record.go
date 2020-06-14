@@ -1,5 +1,10 @@
 package models
 
+import (
+	"github.com/aiman-zaki/go_dz_http/services"
+	"github.com/go-pg/pg/v9"
+)
+
 // StockRecordResponse :
 // swagger:response stockRecord
 type StockRecordResponse struct {
@@ -33,27 +38,30 @@ type StockRecord struct {
 	StockStatus *StockStatus `pg:"fk:stock_status_id"`
 }
 
-// StockStatusResponse :
-// swagger:response stockStatus
-type StockStatusResponse struct {
-	Body struct {
-		Message     string       `json:"message"`
-		StockStatus *StockStatus `json:"stock_status"`
+func (ssw *StockRecordWrapper) Create() error {
+	db := pg.Connect(services.PgOptions())
+	defer db.Close()
+	err := db.Insert(&ssw.Single)
+	if err != nil {
+		return err
 	}
+	return nil
 }
 
-// StockStatusesResponse :
-// swagger:response stockStatuses
-type StockStatusesResponse struct {
-	Body struct {
-		Message       string         `json:"message"`
-		StockStatuses []*StockStatus `json:"stock_statuses"`
+func (ssw *StockRecordWrapper) Read() error {
+	db := pg.Connect(services.PgOptions())
+	defer db.Close()
+	err := db.Model(&ssw.Array).Select()
+	if err != nil {
+		return err
 	}
+	return nil
 }
 
-// StockStatus :
-// swagger: model
-type StockStatus struct {
-	ID     int64  `json:"id"`
-	Status string `json:"status"`
+func (ssw *StockRecordWrapper) Update() error {
+	return nil
+}
+
+func (ssw *StockRecordWrapper) Delete() error {
+	return nil
 }

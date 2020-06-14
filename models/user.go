@@ -1,28 +1,11 @@
 package models
 
-import "time"
+import (
+	"time"
 
-// UsersResponse : List all users
-// swagger:response users
-type UsersResponse struct {
-	// in: body
-	Body struct {
-		//the success message
-		Message string  `json:"message"`
-		User    []*User `json:"users"`
-	}
-}
-
-// UserResponse : List all users
-// swagger:response user
-type UserResponse struct {
-	// in: body
-	Body struct {
-		//the success message
-		Message string `json:"message"`
-		User    *User  `json:"user"`
-	}
-}
+	"github.com/aiman-zaki/go_dz_http/services"
+	"github.com/go-pg/pg/v9"
+)
 
 // User represents the product for this application
 //
@@ -32,7 +15,7 @@ type User struct {
 	// readOnly: true
 	ID int64 `pg:"alias:auth_id" json:"id"`
 	// swagger:ignore
-	Auth *Auth `pg:"fk:auth_id"`
+	Auth *Auth `pg:"fk:auth_id" json:"auth"`
 	// the first name for this user
 	// required: true
 	// min length: 3
@@ -49,10 +32,32 @@ type User struct {
 	DateUpdated time.Time `json:"date_updated" pg:"default:now()"`
 }
 
-func (u User) BeforeInsert() error {
-	if u.DateCreated.IsZero() {
-		u.DateCreated = time.Now()
-	}
+type UserWrapper struct {
+	Single User
+	Array  []User
+}
 
+// ReadByID :
+func (uw *UserWrapper) ReadByID() error {
+	db := pg.Connect(services.PgOptions())
+	defer db.Close()
+	err := db.Model(&uw.Single).
+		Where(`"user"."id" = ?`, uw.Single.ID).
+		Relation("Auth").
+		Select()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Read :
+func (uw *UserWrapper) Read() error {
+	db := pg.Connect(services.PgOptions())
+	defer db.Close()
+	err := db.Model(&uw.Array).Select()
+	if err != nil {
+		return err
+	}
 	return nil
 }

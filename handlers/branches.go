@@ -1,4 +1,4 @@
-package repositories
+package handlers
 
 import (
 	"encoding/json"
@@ -33,7 +33,7 @@ func (rs BranchResources) Routes() chi.Router {
 		//     Responses:
 		//       200:branches
 		//
-		r.Get("/", rs.GetAll)
+		r.Get("/", rs.Read)
 		// swagger:route GET /branches/{id} Branches getBranchById
 		//
 		// Get a Branch by Id.
@@ -49,7 +49,7 @@ func (rs BranchResources) Routes() chi.Router {
 		//     Responses:
 		//       200:branches
 		//
-		r.Get("/{id}", rs.GetById)
+		r.Get("/{id}", rs.ReadByID)
 		// swagger:route POST /branches Branches createBranch
 		//
 		// Create a Branch.
@@ -97,21 +97,10 @@ func (rs BranchResources) Routes() chi.Router {
 		//     Responses:
 		//       200:branch
 		//
-		r.Delete("/{id}", rs.DeleteById)
+		r.Delete("/{id}", rs.Delete)
 	})
 
 	return r
-}
-
-// swagger:parameters createBranch
-type BranchWrapper struct {
-	// in:body
-	Branch models.Branch
-}
-
-// swagger:parameters updateBranchById deleteBranchById
-type BranchIdWrapper struct {
-	Id string `json:"id"`
 }
 
 func (rs BranchResources) CountBranchExist(db *pg.DB, id int64, m models.Branch) int {
@@ -124,84 +113,53 @@ func (rs BranchResources) CountBranchExist(db *pg.DB, id int64, m models.Branch)
 }
 
 func (rs BranchResources) Create(w http.ResponseWriter, r *http.Request) {
-	var m models.Branch
+	var bw models.BranchWrapper
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-	wrappers.JSONDecodeWrapper(w, r, &m)
-	fmt.Println(m)
-	err := db.Insert(&m.Coordinate)
-	if err != nil {
-		fmt.Println(err)
-	}
-	m.CoordinateId = m.Coordinate.ID
-	db.Insert(m)
-	err = db.Insert(&m)
-	if err != nil {
-		fmt.Println(err)
-	}
-	json.NewEncoder(w).Encode(m)
+	wrappers.JSONDecodeWrapper(w, r, &bw.Single)
+	bw.Create()
+	json.NewEncoder(w).Encode(bw.Single)
 
 }
 
 func (rs BranchResources) Update(w http.ResponseWriter, r *http.Request) {
-	var m models.Branch
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
-	wrappers.JSONDecodeWrapper(w, r, &m)
+	var bw models.BranchWrapper
+	wrappers.JSONDecodeWrapper(w, r, &bw.Single)
 	id := chi.URLParam(r, "id")
 	parsedID, parseErr := strconv.ParseInt(id, 0, 64)
 	if parseErr != nil {
-		fmt.Println(parseErr)
 		http.Error(w, `{"message":"invalid id format"}`, 400)
-	} else {
-		m.ID = parsedID
-		_, errCoordinate := db.Model(&m.Coordinate).Where("id = ?", m.CoordinateId).Update()
-		if errCoordinate != nil {
-			fmt.Println(errCoordinate)
-		}
-		err := db.Update(&m)
-		if err != nil {
-			fmt.Println(err)
-		}
-		json.NewEncoder(w).Encode(m)
+		return
 	}
+	bw.Single.ID = parsedID
+	bw.Update()
+	json.NewEncoder(w).Encode(bw.Update)
 }
 
-func (rs BranchResources) GetAll(w http.ResponseWriter, r *http.Request) {
-	var m []models.Branch
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
-	err := db.Model(&m).Relation("Coordinate").Select()
-	if err != nil {
-		fmt.Println(err)
-	}
-	json.NewEncoder(w).Encode(m)
+func (rs BranchResources) Read(w http.ResponseWriter, r *http.Request) {
+	var bw models.BranchWrapper
+	bw.Read()
+	json.NewEncoder(w).Encode(bw.Array)
 }
 
-func (rs BranchResources) GetById(w http.ResponseWriter, r *http.Request) {
-	var m models.Branch
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
+func (rs BranchResources) ReadByID(w http.ResponseWriter, r *http.Request) {
+	var bw models.BranchWrapper
 	id := chi.URLParam(r, "id")
-	fmt.Println(id)
-	err := db.Model(&m).Where("id = ?", id).Relation("Coordinate").Select()
-	if err != nil {
-		fmt.Println(err)
-	}
-	json.NewEncoder(w).Encode(m)
+	parseID, _ := strconv.ParseInt(id, 0, 64)
+	bw.Single.ID = parseID
+	bw.ReadById()
+	json.NewEncoder(w).Encode(bw.Single)
 }
 
-func (rs BranchResources) DeleteById(w http.ResponseWriter, r *http.Request) {
-	var m models.Branch
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
+func (rs BranchResources) Delete(w http.ResponseWriter, r *http.Request) {
+	var bw models.BranchWrapper
 	id := chi.URLParam(r, "id")
-	parseId, _ := strconv.ParseInt(id, 0, 64)
-	rs.CountBranchExist(db, parseId, m)
-	db.Model(&m.Coordinate).Where("id = ?", m.CoordinateId).Delete()
-	err := db.Delete(&m)
+	parseID, _ := strconv.ParseInt(id, 0, 64)
+	bw.Single.ID = parseID
+	err := bw.Delete()
 	if err != nil {
-		fmt.Println(err)
+		http.Error(w, err.Error(), 400)
 	}
+	json.NewEncoder(w).Encode(bw.Single)
 
 }

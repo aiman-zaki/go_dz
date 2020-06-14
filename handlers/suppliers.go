@@ -1,24 +1,15 @@
-package repositories
+package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/aiman-zaki/go_dz_http/models"
-	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/aiman-zaki/go_dz_http/wrappers"
 	"github.com/go-chi/chi"
-	"github.com/go-pg/pg/v9"
 )
 
 type SupplierResources struct{}
-
-// swagger:parameters createSupplier
-type SupplierWrapper struct {
-	// in:body
-	Supplier models.Supplier
-}
 
 func (rs SupplierResources) Routes() chi.Router {
 	r := chi.NewRouter()
@@ -35,7 +26,7 @@ func (rs SupplierResources) Routes() chi.Router {
 		//
 		//    Responses:
 		//	   200: suppliers
-		r.Get("/", rs.GetAll)
+		r.Get("/", rs.Read)
 		// swagger:route POST /suppliers Supplier createSupplier
 		//
 		// Add a Supplier
@@ -55,26 +46,24 @@ func (rs SupplierResources) Routes() chi.Router {
 }
 
 func (rs SupplierResources) Create(w http.ResponseWriter, r *http.Request) {
-	var m models.Supplier
-	db := pg.Connect(services.PgOptions())
-	w.Header().Set("content-type", "application/json")
-	defer db.Close()
-	wrappers.JSONDecodeWrapper(w, r, &m)
-	err := db.Insert(&m)
+	var ssw models.SupplierWrapper
+
+	wrappers.JSONDecodeWrapper(w, r, &ssw.Single)
+	err := ssw.Create()
 	if err != nil {
-		fmt.Println(err)
+		http.Error(w, err.Error(), 400)
+		return
 	}
-	json.NewEncoder(w).Encode(m)
+	json.NewEncoder(w).Encode(ssw.Single)
 
 }
 
-func (rs SupplierResources) GetAll(w http.ResponseWriter, r *http.Request) {
-	var m []models.Supplier
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
-	err := db.Model(&m).Select()
+func (rs SupplierResources) Read(w http.ResponseWriter, r *http.Request) {
+	var ssw models.SupplierWrapper
+	err := ssw.Read()
 	if err != nil {
-		fmt.Println(err)
+		http.Error(w, err.Error(), 400)
+		return
 	}
-	json.NewEncoder(w).Encode(m)
+	json.NewEncoder(w).Encode(ssw.Array)
 }

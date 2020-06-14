@@ -1,5 +1,10 @@
 package models
 
+import (
+	"github.com/aiman-zaki/go_dz_http/services"
+	"github.com/go-pg/pg/v9"
+)
+
 // SuppliersResponse :
 // swagger:response suppliers
 type SuppliersResponse struct {
@@ -37,7 +42,45 @@ type Supplier struct {
 	// address of org or person
 	Address string `json:"address"`
 	// the location of premiese
-	CoordinateID int64 `json:"coordinate_id"`
-	// swagger:ignore
-	Location *Coordinate
+	CoordinateID int64       `json:"coordinate_id"`
+	Location     *Coordinate `json:"coordinate"`
+}
+
+// swagger:parameters createSupplier
+type createSupplierParam struct {
+	// in:body
+	Supplier Supplier
+}
+
+type SupplierWrapper struct {
+	Single Supplier
+	Array  []Supplier
+}
+
+func (sw *SupplierWrapper) Create() error {
+	db := pg.Connect(services.PgOptions())
+	defer db.Close()
+	err := db.Insert(&sw.Single)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (sw *SupplierWrapper) Read() error {
+	db := pg.Connect(services.PgOptions())
+	defer db.Close()
+	err := db.Model(&sw.Array).Select()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (sw *SupplierWrapper) Update() error {
+	return nil
+}
+
+func (sw *SupplierWrapper) Delete() error {
+	return nil
 }
