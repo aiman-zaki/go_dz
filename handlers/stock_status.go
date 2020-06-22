@@ -9,9 +9,9 @@ import (
 	"github.com/go-chi/chi"
 )
 
-type StockStatusResources struct{}
+type StockTypeResources struct{}
 
-func (rs StockStatusResources) Routes() chi.Router {
+func (rs StockTypeResources) Routes() chi.Router {
 	r := chi.NewRouter()
 	r.Route("/", func(r chi.Router) {
 		// swagger:route GET /configuration/stock-statuses Configuration_StockStatus getAllStockStatuses
@@ -26,7 +26,7 @@ func (rs StockStatusResources) Routes() chi.Router {
 		//
 		//    Responses:
 		//	   200: stockStatuses
-		r.Get("/configuration/stock-statuses", rs.All)
+		r.Get("/", rs.Read)
 		// swagger:route POST /configuration/stock-statuses Configuration_StockStatus createStockStatus
 		//
 		// Create a StockStatus
@@ -39,13 +39,13 @@ func (rs StockStatusResources) Routes() chi.Router {
 		//
 		//    Responses:
 		//	   200: stockStatus
-		r.Post("/configuration/stock-statuses", rs.Create)
+		r.Post("/", rs.Create)
 	})
 	return r
 }
 
-func (rs StockStatusResources) Create(w http.ResponseWriter, r *http.Request) {
-	var ssw models.StockStatusWrapper
+func (rs StockTypeResources) Create(w http.ResponseWriter, r *http.Request) {
+	var ssw models.StockTypeWrapper
 	wrappers.JSONDecodeWrapper(w, r, &ssw.Single)
 	err := ssw.Create()
 	if err != nil {
@@ -56,8 +56,8 @@ func (rs StockStatusResources) Create(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (rs StockStatusResources) All(w http.ResponseWriter, r *http.Request) {
-	var ssw models.StockStatusWrapper
+func (rs StockTypeResources) Read(w http.ResponseWriter, r *http.Request) {
+	var ssw models.StockTypeWrapper
 	err := ssw.Read()
 	if err != nil {
 		http.Error(w, err.Error(), 400)

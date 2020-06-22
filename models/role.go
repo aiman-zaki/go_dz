@@ -15,7 +15,8 @@ type Role struct {
 	// readOnly: true
 	ID int64 `json:"id"`
 	// the role
-	Role string `json:"role"`
+	Key  string `json:"key"`
+	Text string `json:"text"`
 }
 
 type RoleWrapper struct {
@@ -26,7 +27,7 @@ type RoleWrapper struct {
 func (rw *RoleWrapper) Create() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-	count, err := db.Model(&Role{}).Where("role = ?", &rw.Single.Role).Count()
+	count, err := db.Model(&Role{}).Where("key = ?", &rw.Single.Key).Count()
 	if err != nil {
 		return err
 	}

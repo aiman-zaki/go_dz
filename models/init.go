@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/go-pg/pg/v9"
@@ -47,8 +48,43 @@ func runTestModel(l int) {
 	testModel(&unitWrapper)
 
 	var roleWrapper RoleWrapper
-	roleWrapper.Single = Role{0, "ADMINISTRATOR"}
-	testModel(&roleWrapper)
+	roleWrapper.Single = Role{0, "SUPER_ADMINISTRATOR", "Super Administrator"}
+	roleWrapper.Create()
+	roleWrapper.Single = Role{0, "ADMINISTARTOR", "Admin"}
+	roleWrapper.Create()
+	roleWrapper.Single = Role{0, "WORKER", "Worker"}
+	roleWrapper.Create()
+
+	var productWrapper ProductWrapper
+	productWrapper.Single = Product{0, "Keropok Basah", 10.00, 20.00, time.Now(), time.Now()}
+	productWrapper.Create()
+	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now()}
+	productWrapper.Create()
+	productWrapper.Single = Product{0, "Keropok Makan", 10.00, 20.00, time.Now(), time.Now()}
+	testModel(&productWrapper)
+
+	var branchWrapper BranchWrapper
+	branchWrapper.Single = Branch{0, "Rawang", "Depan Sekolah", time.Now(), time.Now()}
+	err := branchWrapper.Create()
+	if err != nil {
+		fmt.Println(err)
+	}
+	branchWrapper.Single = Branch{0, "Selayang", "Depan Sekolah", time.Now(), time.Now()}
+	branchWrapper.Create()
+	branchWrapper.Single = Branch{0, "Subang", "Depan Sekolah", time.Now(), time.Now()}
+	branchWrapper.Create()
+
+	var stockTypeWrapper StockTypeWrapper
+
+	stockTypeWrapper.Single = StockType{0, "STOCK_IN", "Stock IN", time.Now(), time.Now()}
+	stockTypeWrapper.Create()
+	stockTypeWrapper.Single = StockType{0, "STOCK_BALANCE", "Stock Balance", time.Now(), time.Now()}
+	stockTypeWrapper.Create()
+
+	var userWrapper UserWrapper
+
+	userWrapper.Single = User{0, "Leman", "Power", 1200, time.Now(), time.Now(), 3, &Role{}}
+	userWrapper.Create()
 
 }
 
@@ -57,26 +93,30 @@ func InitDB() {
 	defer db.Close()
 
 	models := []interface{}{
-		(*Unit)(nil),
 		(*Role)(nil),
 		(*Auth)(nil),
 		(*User)(nil),
-		(*Coordinate)(nil),
 		(*Branch)(nil),
-		(*SupplyUnit)(nil),
+		//(*SupplyUnit)(nil),
 		(*Supplier)(nil),
 		(*Product)(nil),
-		(*PriceProductUnit)(nil),
+		(*ProductSupplier)(nil),
+
+		//(*PriceProductUnit)(nil),
+		(*ShiftWork)(nil),
 		(*Stock)(nil),
-		(*StockStatus)(nil),
+		(*Account)(nil),
+		(*Expense)(nil),
+		(*StockProduct)(nil),
 		(*StockRecord)(nil),
-		(*Supply)(nil),
-		(*Payment)(nil),
+
+		//(*Supply)(nil),
+		//(*Payment)(nil),
 	}
 
 	for _, model := range models {
 		services.CreateTable(db, model)
 	}
 
-	runTestModel(len(models))
+	//runTestModel(len(models))
 }

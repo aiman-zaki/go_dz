@@ -6,6 +6,8 @@ pkgs  = $(shell GOFLAGS=-mod=vendor $(GO) list ./... | grep -vE -e /vendor/ -e /
 #-------------
 # build 
 #------------
+
+.PHONY: build
 build:
 	$(GO) build ${MODULE_PATH}
 #-----------
@@ -45,3 +47,8 @@ dev:
 gen:
 	${swagger} generate spec -o ./swagger_ui/swagger.json
 	${GO} run main.go
+
+#--------
+# production
+#--------
+

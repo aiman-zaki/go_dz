@@ -112,7 +112,12 @@ type ProductWrapper struct {
 func (rs ProductResources) Create(w http.ResponseWriter, r *http.Request) {
 	var pw models.ProductWrapper
 	wrappers.JSONDecodeWrapper(w, r, &pw.Single)
-	pw.Create()
+	fmt.Println(pw.Single)
+	err := pw.Create()
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
 	json.NewEncoder(w).Encode(pw.Single)
 
 }

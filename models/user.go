@@ -13,9 +13,9 @@ import (
 type User struct {
 	// the id for this user
 	// readOnly: true
-	ID int64 `pg:"alias:auth_id" json:"id"`
+	ID int64 `json:"id"`
 	// swagger:ignore
-	Auth *Auth `pg:"fk:auth_id" json:"auth"`
+	//Auth *Auth `pg:"fk:auth_id" json:"auth"`
 	// the first name for this user
 	// required: true
 	// min length: 3
@@ -30,6 +30,10 @@ type User struct {
 	DateCreated time.Time `json:"date_created" pg:"default:now()"`
 	// the dateUpdated for this user
 	DateUpdated time.Time `json:"date_updated" pg:"default:now()"`
+
+	RoleID int64 `json:"role_id"`
+	// swagger:ignore
+	Role *Role `json:"role" pg:"fk:role_id"`
 }
 
 type UserWrapper struct {
@@ -55,9 +59,25 @@ func (uw *UserWrapper) ReadByID() error {
 func (uw *UserWrapper) Read() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-	err := db.Model(&uw.Array).Select()
+	err := db.Model(&uw.Array).Relation("Role").Select()
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (uw *UserWrapper) Create() error {
+	db := pg.Connect(services.PgOptions())
+	defer db.Close()
+	err := db.Insert(&uw.Single)
+
+	if err != nil {
+		return err
+	}
+
+	err2 := db.Model(&uw.Array).Relation("Role").Where(`"user"."id" = ?`, uw.Single.ID).Select()
+	if err2 != nil {
+		return err2
 	}
 	return nil
 }

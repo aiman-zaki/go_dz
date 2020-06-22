@@ -80,9 +80,14 @@ func main() {
 	r.Mount("/api/branches", handlers.BranchResources.Routes(handlers.BranchResources{}))
 	r.Mount("/api/auth", handlers.AuthResources.Routes(handlers.AuthResources{}))
 	r.Mount("/api/role", handlers.RoleResources.Routes(handlers.RoleResources{}))
+	r.Mount("/api/stocks", handlers.StocksResource.Routes(handlers.StocksResource{}))
+
+	r.Mount("/api/master-data/stock-types", handlers.StockTypeResources.Routes(handlers.StockTypeResources{}))
+	r.Mount("/api/master-data/shift-works", handlers.ShiftWorkResources.Routes(handlers.ShiftWorkResources{}))
+
 	r.Mount("/api/suppliers", handlers.SupplierResources.Routes(handlers.SupplierResources{}))
 	r.Mount("/api/supplies", handlers.SupplyResources.Routes(handlers.SupplyResources{}))
-	r.Mount("/api/configurations/units", handlers.UnitResources.Routes(handlers.UnitResources{}))
+	r.Mount("/api/master-data/units", handlers.UnitResources.Routes(handlers.UnitResources{}))
 
 	//swagger-ui serve
 	fs := http.FileServer(http.Dir("./swagger_ui"))

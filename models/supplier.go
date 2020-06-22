@@ -38,12 +38,12 @@ type Supplier struct {
 	// readOnly: true
 	ID int64 `json:"id"`
 	// name of org or person
-	Name string `json:"name"`
+	Company        string `json:"company"`
+	PersonInCharge string `json:"person_in_charge"`
+	Email          string `json:"email"`
 	// address of org or person
 	Address string `json:"address"`
-	// the location of premiese
-	CoordinateID int64       `json:"coordinate_id"`
-	Location     *Coordinate `json:"coordinate"`
+	PhoneNo string `json:"phone_no"`
 }
 
 // swagger:parameters createSupplier

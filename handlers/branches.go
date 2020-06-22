@@ -138,7 +138,11 @@ func (rs BranchResources) Update(w http.ResponseWriter, r *http.Request) {
 
 func (rs BranchResources) Read(w http.ResponseWriter, r *http.Request) {
 	var bw models.BranchWrapper
-	bw.Read()
+	err := bw.Read()
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
 	json.NewEncoder(w).Encode(bw.Array)
 }
 

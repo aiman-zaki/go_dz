@@ -82,6 +82,7 @@ func (rs AuthResources) Login(w http.ResponseWriter, r *http.Request) {
 	err := aw.Login()
 	if err != nil {
 		http.Error(w, err.Error(), 400)
+		return
 	}
 	json.NewEncoder(w).Encode(aw.User)
 }
@@ -92,6 +93,7 @@ func (rs AuthResources) Register(w http.ResponseWriter, r *http.Request) {
 	err := aw.Register()
 	if err != nil {
 		http.Error(w, err.Error(), 400)
+		return
 	}
 	json.NewEncoder(w).Encode(aw.Auth)
 

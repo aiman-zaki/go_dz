@@ -2,7 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/aiman-zaki/go_dz_http/models"
 	"github.com/aiman-zaki/go_dz_http/wrappers"
@@ -27,6 +30,9 @@ func (rs StocksResource) Routes() chi.Router {
 		//    Responses:
 		//	   200: stocks
 		r.Get("/", rs.Read)
+		r.Get("/stock-products/stock/{id}", rs.ReadStockProducts)
+		r.Get("/stock-products/filters", rs.ReadByFilters)
+
 		// swagger:route POST /stocks Stocks createStock
 		//
 		// Create a Stock
@@ -71,9 +77,17 @@ func (rs StocksResource) Routes() chi.Router {
 }
 
 func (rs StocksResource) Create(w http.ResponseWriter, r *http.Request) {
-	var sw models.StockWrapper
-	wrappers.JSONDecodeWrapper(w, r, &sw.Single)
-	sw.Create()
+	var sw models.StockInputWrapper
+	err := wrappers.JSONDecodeWrapper(w, r, &sw.Single)
+	if err != nil {
+		return
+	}
+	fmt.Println(sw.Single.StockDate)
+	err = sw.Create()
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
 	json.NewEncoder(w).Encode(sw.Single)
 }
 
@@ -90,8 +104,42 @@ func (rs StocksResource) Update(w http.ResponseWriter, r *http.Request) {
 
 func (rs StocksResource) Read(w http.ResponseWriter, r *http.Request) {
 	var sw models.StockWrapper
-	sw.Read()
-	json.NewEncoder(w).Encode(sw.Single)
+	err := sw.Read()
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+	json.NewEncoder(w).Encode(sw.Array)
+}
+
+func (res StocksResource) ReadStockProducts(w http.ResponseWriter, r *http.Request) {
+	var ssw models.StockInputWrapper
+
+	id, err := strconv.Atoi(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+	ssw.ReadByID(int64(id))
+
+	json.NewEncoder(w).Encode(ssw.Single)
+
+}
+
+func (res StocksResource) ReadByFilters(w http.ResponseWriter, r *http.Request) {
+	var ssw models.StockInputWrapper
+	layout := "2006-01-02T15:04:05.000Z"
+	prevDate := r.URL.Query()["prevDate"][0]
+	fmt.Println(prevDate)
+	t, err := time.Parse(layout, prevDate)
+	fmt.Println(t)
+	if err != nil {
+		return
+	}
+	ssw.Single.StockDate = t
+	ssw.ReadByPreviousDate()
+	json.NewEncoder(w).Encode(ssw.Single)
+
 }
 
 func (rs StocksResource) ReadById(w http.ResponseWriter, r *http.Request) {

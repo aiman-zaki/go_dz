@@ -97,10 +97,10 @@ func (rs UserResources) ReadByID(w http.ResponseWriter, r *http.Request) {
 // Read serves the API for Users
 func (rs UserResources) Read(w http.ResponseWriter, r *http.Request) {
 	var uw models.UserWrapper
-	json.NewEncoder(w).Encode(&uw.Single)
 	err := uw.Read()
 	if err != nil {
 		http.Error(w, err.Error(), 400)
+		return
 	}
 	json.NewEncoder(w).Encode(uw.Array)
 

@@ -283,7 +283,7 @@
             "name": "stock_status",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/StockStatus"
+              "$ref": "#/definitions/StockType"
             }
           }
         ],
@@ -465,7 +465,7 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "Id",
+            "x-go-name": "ID",
             "name": "id",
             "in": "path",
             "required": true
@@ -514,7 +514,7 @@
           },
           {
             "type": "string",
-            "x-go-name": "Id",
+            "x-go-name": "ID",
             "name": "id",
             "in": "path",
             "required": true
@@ -551,7 +551,7 @@
         "parameters": [
           {
             "type": "string",
-            "x-go-name": "Id",
+            "x-go-name": "ID",
             "name": "id",
             "in": "path",
             "required": true
@@ -591,7 +591,7 @@
           {
             "type": "integer",
             "format": "int64",
-            "x-go-name": "ProductId",
+            "x-go-name": "ProductID",
             "name": "productId",
             "in": "path",
             "required": true
@@ -629,7 +629,7 @@
           {
             "type": "integer",
             "format": "int64",
-            "x-go-name": "ProductId",
+            "x-go-name": "ProductID",
             "name": "productId",
             "in": "path",
             "required": true
@@ -676,7 +676,7 @@
           {
             "type": "integer",
             "format": "int64",
-            "x-go-name": "UnitId",
+            "x-go-name": "UnitID",
             "name": "unitId",
             "in": "path",
             "required": true
@@ -684,7 +684,7 @@
           {
             "type": "integer",
             "format": "int64",
-            "x-go-name": "ProductId",
+            "x-go-name": "ProductID",
             "name": "productId",
             "in": "path",
             "required": true
@@ -1190,12 +1190,6 @@
           "type": "string",
           "x-go-name": "RefreshToken",
           "readOnly": true
-        },
-        "role_id": {
-          "description": "the role for this user\nnot required during login",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "RoleID"
         }
       },
       "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
@@ -1208,37 +1202,17 @@
           "type": "string",
           "x-go-name": "Address"
         },
-        "coordinate": {
-          "$ref": "#/definitions/Coordinate"
-        },
-        "coordinate_id": {
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "CoordinateId"
-        },
-        "id": {
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "ID",
-          "readOnly": true
-        },
-        "name": {
+        "branch": {
           "type": "string",
-          "x-go-name": "Name"
-        }
-      },
-      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
-    },
-    "Coordinate": {
-      "description": "Coordinate is a model bro",
-      "type": "object",
-      "properties": {
+          "x-go-name": "Branch"
+        },
         "date_created": {
           "type": "string",
           "format": "date-time",
           "x-go-name": "DateCreated"
         },
         "date_updated": {
+          "description": "the dateUpdated for the product",
           "type": "string",
           "format": "date-time",
           "x-go-name": "DateUpdated"
@@ -1248,14 +1222,6 @@
           "format": "int64",
           "x-go-name": "ID",
           "readOnly": true
-        },
-        "latitude": {
-          "type": "string",
-          "x-go-name": "Latitude"
-        },
-        "longitude": {
-          "type": "string",
-          "x-go-name": "Longitude"
         }
       },
       "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
@@ -1323,8 +1289,13 @@
       "description": "Product represents the product for this application",
       "type": "object",
       "properties": {
-        "date_created": {
+        "cost_price": {
           "description": "the dateCreated for the product",
+          "type": "number",
+          "format": "float",
+          "x-go-name": "CostPrice"
+        },
+        "date_created": {
           "type": "string",
           "format": "date-time",
           "x-go-name": "DateCreated"
@@ -1341,10 +1312,15 @@
           "format": "int64",
           "x-go-name": "ID"
         },
-        "name": {
+        "product": {
           "description": "the name for the product",
           "type": "string",
-          "x-go-name": "Name"
+          "x-go-name": "Product"
+        },
+        "sale_price": {
+          "type": "number",
+          "format": "float",
+          "x-go-name": "SalePrice"
         }
       },
       "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
@@ -1360,10 +1336,39 @@
           "x-go-name": "ID",
           "readOnly": true
         },
-        "role": {
+        "key": {
           "description": "the role",
           "type": "string",
-          "x-go-name": "Role"
+          "x-go-name": "Key"
+        },
+        "text": {
+          "type": "string",
+          "x-go-name": "Text"
+        }
+      },
+      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
+    },
+    "ShiftWork": {
+      "type": "object",
+      "properties": {
+        "date_created": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DateCreated"
+        },
+        "date_updated": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DateUpdated"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
+        },
+        "shift": {
+          "type": "string",
+          "x-go-name": "Shift"
         }
       },
       "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
@@ -1372,11 +1377,6 @@
       "description": "Stock : model",
       "type": "object",
       "properties": {
-        "amount": {
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Amount"
-        },
         "branch": {
           "$ref": "#/definitions/Branch"
         },
@@ -1385,11 +1385,55 @@
           "format": "int64",
           "x-go-name": "BranchID"
         },
+        "date_created": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DateCreated"
+        },
+        "date_updated": {
+          "description": "the dateUpdated for the product",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DateUpdated"
+        },
         "id": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "ID",
           "readOnly": true
+        },
+        "shift_work": {
+          "$ref": "#/definitions/ShiftWork"
+        },
+        "shift_work_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ShiftWorkID"
+        },
+        "stock_date": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "StockDate"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        },
+        "user_id": {
+          "description": "ProductID int64     `json:\"product_id\"`\nUnitID    int64 `json:\"unit_id\"`\nSupplierID int64    `json:\"supplier_id\"`\nSupplier   Supplier `pg:\"fk:supplier_id\" json:\"supplier\"`",
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "UserID"
+        }
+      },
+      "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
+    },
+    "StockProduct": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "ID"
         },
         "product": {
           "$ref": "#/definitions/Product"
@@ -1399,13 +1443,13 @@
           "format": "int64",
           "x-go-name": "ProductID"
         },
-        "unit": {
-          "$ref": "#/definitions/Unit"
+        "stock": {
+          "$ref": "#/definitions/Stock"
         },
-        "unit_id": {
+        "stock_id": {
           "type": "integer",
           "format": "int64",
-          "x-go-name": "UnitID"
+          "x-go-name": "StockID"
         }
       },
       "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
@@ -1414,49 +1458,62 @@
       "type": "object",
       "title": "StockRecord :",
       "properties": {
-        "Stock": {
-          "$ref": "#/definitions/Stock"
-        },
-        "StockStatus": {
-          "$ref": "#/definitions/StockStatus"
-        },
-        "amount": {
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Amount"
-        },
         "id": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "ID",
           "readOnly": true
         },
-        "stock_id": {
+        "stock_in": {
+          "description": "StockTypeID  int64         `json:\"stock_type_id\"`",
           "type": "integer",
           "format": "int64",
-          "x-go-name": "StockID"
+          "x-go-name": "StockIn",
+          "readOnly": true
         },
-        "stock_status_id": {
+        "stock_out": {
           "type": "integer",
           "format": "int64",
-          "x-go-name": "StockStatusID"
+          "x-go-name": "StockBalance"
+        },
+        "stock_product": {
+          "$ref": "#/definitions/StockProduct"
+        },
+        "stock_product_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "StockProductID"
         }
       },
       "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
     },
-    "StockStatus": {
-      "description": "swagger: model",
+    "StockType": {
+      "description": "StockType : BALANCE | IN\nswagger: model",
       "type": "object",
-      "title": "StockStatus :",
       "properties": {
+        "date_created": {
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DateCreated"
+        },
+        "date_updated": {
+          "description": "the dateUpdated for the product",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "DateUpdated"
+        },
         "id": {
           "type": "integer",
           "format": "int64",
           "x-go-name": "ID"
         },
-        "status": {
+        "key": {
           "type": "string",
-          "x-go-name": "Status"
+          "x-go-name": "Key"
+        },
+        "type": {
+          "type": "string",
+          "x-go-name": "Type"
         }
       },
       "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
@@ -1470,14 +1527,14 @@
           "type": "string",
           "x-go-name": "Address"
         },
-        "coordinate": {
-          "$ref": "#/definitions/Coordinate"
+        "company": {
+          "description": "name of org or person",
+          "type": "string",
+          "x-go-name": "Company"
         },
-        "coordinate_id": {
-          "description": "the location of premiese",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "CoordinateID"
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
         },
         "id": {
           "description": "the id",
@@ -1486,10 +1543,13 @@
           "x-go-name": "ID",
           "readOnly": true
         },
-        "name": {
-          "description": "name of org or person",
+        "person_in_charge": {
           "type": "string",
-          "x-go-name": "Name"
+          "x-go-name": "PersonInCharge"
+        },
+        "phone_no": {
+          "type": "string",
+          "x-go-name": "PhoneNo"
         }
       },
       "x-go-package": "github.com/aiman-zaki/go_dz_http/models"
@@ -1607,7 +1667,6 @@
       "description": "User represents the product for this application",
       "type": "object",
       "required": [
-        "first_name",
         "last_name"
       ],
       "properties": {
@@ -1623,12 +1682,6 @@
           "format": "date-time",
           "x-go-name": "DateUpdated"
         },
-        "first_name": {
-          "description": "the first name for this user",
-          "type": "string",
-          "minLength": 3,
-          "x-go-name": "FirstName"
-        },
         "id": {
           "description": "the id for this user",
           "type": "integer",
@@ -1641,6 +1694,11 @@
           "type": "string",
           "minLength": 3,
           "x-go-name": "LastName"
+        },
+        "role_id": {
+          "type": "integer",
+          "format": "int64",
+          "x-go-name": "RoleID"
         },
         "salary": {
           "description": "the salary for this user",
@@ -1944,7 +2002,7 @@
             "x-go-name": "Message"
           },
           "stock_status": {
-            "$ref": "#/definitions/StockStatus"
+            "$ref": "#/definitions/StockType"
           }
         }
       },
@@ -1964,7 +2022,7 @@
           "stock_statuses": {
             "type": "array",
             "items": {
-              "$ref": "#/definitions/StockStatus"
+              "$ref": "#/definitions/StockType"
             },
             "x-go-name": "StockStatuses"
           }

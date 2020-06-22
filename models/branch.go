@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/go-pg/pg/v9"
 )
@@ -31,11 +33,12 @@ type BranchResponse struct {
 // swagger:model
 type Branch struct {
 	// readonly:true
-	ID           int64      `json:"id"`
-	CoordinateId int64      `json:"coordinate_id"`
-	Name         string     `json:"name"`
-	Address      string     `json:"address"`
-	Coordinate   Coordinate `pg:"fk:coordinate_id" json:"coordinate"`
+	ID          int64     `json:"id"`
+	Branch      string    `json:"branch"`
+	Address     string    `json:"address"`
+	DateCreated time.Time `json:"date_created"`
+	// the dateUpdated for the product
+	DateUpdated time.Time `json:"date_updated"`
 }
 
 // swagger:parameters createBranch
@@ -51,18 +54,13 @@ type branchIdParam struct {
 
 type BranchWrapper struct {
 	Single Branch
-	Array  Branch
+	Array  []Branch
 }
 
-func (bw BranchWrapper) Create() error {
+func (bw *BranchWrapper) Create() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-	err := db.Insert(&bw.Single.Coordinate)
-	if err != nil {
-		return err
-	}
-	bw.Single.CoordinateId = bw.Single.Coordinate.ID
-	err = db.Insert(&bw.Single)
+	err := db.Insert(&bw.Single)
 	if err != nil {
 		return err
 	}
@@ -71,17 +69,17 @@ func (bw BranchWrapper) Create() error {
 
 }
 
-func (bw BranchWrapper) Read() error {
+func (bw *BranchWrapper) Read() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-	err := db.Model(&bw.Array).Relation("Coordinate").Relation("Product").Relation("Branch").Select()
+	err := db.Model(&bw.Array).Select()
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (bw BranchWrapper) ReadById() error {
+func (bw *BranchWrapper) ReadById() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
 	err := db.Model(&bw.Single).Where(`"branch"."id" = ?"`, bw.Single.ID).Relation("Product").Relation("Branch").Select()
@@ -91,7 +89,7 @@ func (bw BranchWrapper) ReadById() error {
 	return nil
 }
 
-func (bw BranchWrapper) Update() error {
+func (bw *BranchWrapper) Update() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
 
@@ -99,26 +97,15 @@ func (bw BranchWrapper) Update() error {
 	if err != nil {
 		return err
 	}
-	err1 := db.Update(&bw.Single.Coordinate)
-	if err1 != nil {
-		return err1
-	}
+
 	return nil
 }
 
-func (bw BranchWrapper) Delete() error {
+func (bw *BranchWrapper) Delete() error {
 	db := pg.Connect(services.PgOptions())
 
 	defer db.Close()
-	_, err := db.Model(&bw.Single.Coordinate).Where("id = ?", bw.Single.ID).Delete()
-	_, err1 := db.Model(&bw.Single).Where("id = ?", bw.Single.ID).Delete()
 
-	if err != nil {
-		return err
-	}
-	if err1 != nil {
-		return err1
-	}
 	return nil
 
 }

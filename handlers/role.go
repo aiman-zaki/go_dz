@@ -79,7 +79,7 @@ type RolesResponse struct {
 func (rs RoleResources) Create(w http.ResponseWriter, r *http.Request) {
 	var rw models.RoleWrapper
 	wrappers.JSONDecodeWrapper(w, r, &rw.Single)
-	rw.Single.Role = strings.ToUpper(rw.Single.Role)
+	rw.Single.Key = strings.ToUpper(rw.Single.Key)
 	err := rw.Create()
 	if err != nil {
 		http.Error(w, err.Error(), 409)

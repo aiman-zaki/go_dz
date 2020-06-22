@@ -9,5 +9,5 @@ require (
 	github.com/go-chi/httplog v0.1.6
 	github.com/go-chi/jwtauth v4.0.4+incompatible
 	github.com/go-pg/pg/v9 v9.1.6
-	golang.org/x/crypto v0.0.0-20200221231518-2aa609cf4a9d
+	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9
 )

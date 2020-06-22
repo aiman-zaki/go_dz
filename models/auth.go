@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/aiman-zaki/go_dz_http/services"
@@ -32,9 +33,7 @@ type Auth struct {
 	RefreshToken string `pg:"-" json:"refresh_token"`
 	// the role for this user
 	// not required during login
-	RoleID int64 `json:"role_id"`
-	// swagger:ignore
-	Role *Role `json:"role" pg:"fk:role_id"`
+
 }
 
 type AuthWrapper struct {
@@ -60,6 +59,7 @@ func (aw *AuthWrapper) Register() error {
 	db.Insert(&aw.Auth)
 	aw.User.ID = aw.Auth.ID
 	db.Insert(&aw.User)
+	db.Model(&aw.Auth).Where("email = ?", aw.Auth.Email).Relation("Role").Select()
 	return nil
 
 }
@@ -75,7 +75,11 @@ func (aw *AuthWrapper) Login() error {
 		return err
 	}
 	if count > 0 {
+		fmt.Println(plainPassword)
+		fmt.Println(aw.Auth.Password)
+
 		valid := Auth.ComparePasswords(Auth{}, aw.Auth.Password, []byte(plainPassword))
+		fmt.Println(valid)
 		if valid {
 			err := db.Model(&aw.User).
 				Where(`"user"."id" = ?`, aw.Auth.ID).
@@ -84,17 +88,20 @@ func (aw *AuthWrapper) Login() error {
 			if err != nil {
 				return err
 			}
-			Auth.GenerateToken(Auth{}, &aw.Auth)
+			aw.GenerateToken()
+			return nil
 		}
+		return errors.New("Invalid Credential")
 	}
 	return nil
 }
 
 // GenerateToken : Generate JWT Token
-func (auth Auth) GenerateToken(a *Auth) {
+func (aw *AuthWrapper) GenerateToken() {
 	tokenAuth := jwtauth.New("HS256", []byte("secret"), nil)
-	_, tokenString, _ := tokenAuth.Encode(jwt.MapClaims{"user": auth.Email})
-	a.AcessToken = tokenString
+	_, tokenString, _ := tokenAuth.Encode(jwt.MapClaims{"user": aw.Auth.Email})
+	aw.Auth.AcessToken = tokenString
+	fmt.Println(aw.Auth.AcessToken)
 }
 
 // HashAndSalt : generate hashed password

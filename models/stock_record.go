@@ -23,19 +23,27 @@ type StockRecordsResponse struct {
 	}
 }
 
+type StockRecordWrapper struct {
+	Single StockRecord
+	Array  []StockRecord
+}
+
 // StockRecord :
 // swagger:model
 type StockRecord struct {
 	//
 	// readOnly: true
-	ID      int64 `json:"id"`
-	StockID int64 `json:"stock_id"`
+	ID             int64 `json:"id"`
+	StockProductID int64 `json:"stock_product_id"`
 	// readOnly:true
-	Stock         *Stock `pg:"fk:stock_id"`
-	Amount        int64  `json:"amount"`
-	StockStatusID int64  `json:"stock_status_id"`
+	StockProduct *StockProduct `pg:"fk:stock_product_id" json:"stock_product"`
+	//StockTypeID  int64         `json:"stock_type_id"`
 	// readOnly:true
-	StockStatus *StockStatus `pg:"fk:stock_status_id"`
+	//StockType *StockType `pg:"fk:stock_type_id"`
+	StockIn      int64 `json:"stock_in"`
+	StockBalance int64 `json:"stock_out"`
+
+	//Quantity  int64      `json:"quantity"`
 }
 
 func (ssw *StockRecordWrapper) Create() error {
@@ -51,8 +59,9 @@ func (ssw *StockRecordWrapper) Create() error {
 func (ssw *StockRecordWrapper) Read() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-	err := db.Model(&ssw.Array).Select()
+	err := db.Model(&ssw.Single).Where("stock_product_id = ?", ssw.Single.StockProductID).Select()
 	if err != nil {
+
 		return err
 	}
 	return nil
