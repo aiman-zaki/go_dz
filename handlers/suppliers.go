@@ -40,9 +40,26 @@ func (rs SupplierResources) Routes() chi.Router {
 		//    Responses:
 		//	   200: supplier
 		r.Post("/", rs.Create)
+		r.Get("/dtlist/{total}", rs.DtList)
 	})
 
 	return r
+}
+func (rs SupplierResources) DtList(w http.ResponseWriter, r *http.Request) {
+	var dtlist models.DtListWrapper
+	dtlr, err := dtlist.Create(r)
+	var ew models.SupplierWrapper
+	if err != nil {
+		return
+	}
+	err1, dtr := ew.DtList(dtlist, &dtlr)
+	if err1 != nil {
+		dtr.Eer = err1.Error()
+	} else {
+		dtr.Eer = ""
+	}
+
+	json.NewEncoder(w).Encode(dtr)
 }
 
 func (rs SupplierResources) Create(w http.ResponseWriter, r *http.Request) {
@@ -56,6 +73,26 @@ func (rs SupplierResources) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(ssw.Single)
 
+}
+
+func (rs SupplierResources) Update(w http.ResponseWriter, r *http.Request) {
+	var pw models.SupplierWrapper
+	pw.Single.ID = IdAndConvert(r, "id")
+	if pw.Single.ID == -1 {
+		http.Error(w, "Invalid ID", 400)
+		return
+	}
+	wrappers.JSONDecodeWrapper(w, r, &pw.Single)
+	pw.Update()
+	json.NewEncoder(w).Encode(pw.Single)
+}
+
+func (rs SupplierResources) Delete(w http.ResponseWriter, r *http.Request) {
+	var pw models.SupplierWrapper
+	pw.Single.ID = IdAndConvert(r, "id")
+
+	pw.Delete()
+	json.NewEncoder(w).Encode(&pw.Single)
 }
 
 func (rs SupplierResources) Read(w http.ResponseWriter, r *http.Request) {

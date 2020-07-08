@@ -29,26 +29,18 @@ type StocksResponse struct {
 	}
 }
 
-type StockRecordInput struct {
-	Quantity    int64 `json:"quantity"`
-	StockTypeID int64 `json:"stock_type_id"`
+type FinancialStockInput struct {
+	Collection int64     `json:"collection"`
+	Expense    []Expense `json:"expenses"`
 }
-
-type StockProductInput struct {
-	ProductID int64 `json:"product_id"`
-	//StockRecords []StockRecordInput `json:"stock_records"`
-	StockIn      int64 `json:"stock_in"`
-	StockBalance int64 `json:"stock_balance"`
-}
-
 type StockInput struct {
-	StockDate     time.Time           `json:"stock_date"`
-	BranchID      int64               `json:"branch_id,string"`
-	UserID        int64               `json:"user_id,string"`
-	ShiftWorkID   int64               `json:"shift_work_id,string"`
-	DateCreated   time.Time           `json:"date_created"`
-	DateUpdated   time.Time           `json:"date_updated"`
-	StockProducts []StockProductInput `json:"stock_products"`
+	StockDate     time.Time      `json:"stock_date"`
+	BranchID      int64          `json:"branch_id,string"`
+	UserID        int64          `json:"user_id,string"`
+	ShiftWorkID   int64          `json:"shift_work_id,string"`
+	DateCreated   time.Time      `json:"date_created"`
+	DateUpdated   time.Time      `json:"date_updated"`
+	StockProducts []StockProduct `json:"stock_products"`
 }
 
 // Stock : model
@@ -102,7 +94,7 @@ type StockInputWrapper struct {
 func checkExistingStockDate(db *pg.DB, stock Stock) (bool, error) {
 	fmt.Println("checkExistingStockDate")
 
-	count, err := db.Model(&stock).Where("stock_date = ?", stock.StockDate).Count()
+	count, err := db.Model(&stock).Where("stock_date = ?", stock.StockDate).Where("branch_id = ?", stock.BranchID).Count()
 	fmt.Println(count)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -134,24 +126,16 @@ func (siw *StockInputWrapper) Create() error {
 	if err != nil {
 		return err
 	}
+	fmt.Println(siw.Single.StockProducts)
 
 	for i := 0; i < len(siw.Single.StockProducts); i++ {
 		var stockProduct StockProduct
 		stockProduct.ID = 0
 		stockProduct.StockID = stock.ID
 		stockProduct.ProductID = siw.Single.StockProducts[i].ProductID
+		stockProduct.StockIn = siw.Single.StockProducts[i].StockIn
+		stockProduct.StockBalance = siw.Single.StockProducts[i].StockBalance
 		err := db.Insert(&stockProduct)
-		if err != nil {
-			return err
-		}
-		var stockRecord StockRecord
-
-		stockRecord.ID = 0
-		stockRecord.StockProductID = stockProduct.ID
-		stockRecord.StockIn = siw.Single.StockProducts[i].StockIn
-		stockRecord.StockBalance = siw.Single.StockProducts[i].StockBalance
-
-		err = db.Insert(&stockRecord)
 		if err != nil {
 			return err
 		}
@@ -159,14 +143,15 @@ func (siw *StockInputWrapper) Create() error {
 	return nil
 }
 
-func (siw *StockInputWrapper) ReadByPreviousDate() error {
+func (siw *StockInputWrapper) ReadByFilters() error {
 	var stockInput StockInput
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
 
 	var stockWrapper StockWrapper
 	stockWrapper.Single.StockDate = siw.Single.StockDate
-	err := stockWrapper.ReadByPreviousDate()
+	stockWrapper.Single.BranchID = siw.Single.BranchID
+	err := stockWrapper.ReadByFilters()
 	if err != nil {
 		return err
 	}
@@ -183,26 +168,7 @@ func (siw *StockInputWrapper) ReadByPreviousDate() error {
 	if err1 != nil {
 		return err1
 	}
-
-	var stockRecordWrapper StockRecordWrapper
-
-	for i := 0; i < len(stockProductWrapper.Array); i++ {
-		fmt.Println("START stockProductWrapper")
-
-		stockRecordWrapper.Single.StockProductID = stockProductWrapper.Array[i].ID
-		err2 := stockRecordWrapper.Read()
-
-		if err2 != nil {
-			return err2
-		}
-		var spi StockProductInput
-		spi.ProductID = stockProductWrapper.Array[i].ProductID
-		fmt.Println(stockProductWrapper.Array[i])
-		spi.StockBalance = stockRecordWrapper.Single.StockBalance
-		spi.StockIn = stockRecordWrapper.Single.StockIn
-		fmt.Println(spi)
-		stockInput.StockProducts = append(stockInput.StockProducts, spi)
-	}
+	stockInput.StockProducts = stockProductWrapper.Array
 	siw.Single = stockInput
 	return nil
 }
@@ -234,25 +200,7 @@ func (siw *StockInputWrapper) ReadByID(ID int64) error {
 
 	fmt.Println("END stockProductWrapper")
 
-	var stockRecordWrapper StockRecordWrapper
-
-	for i := 0; i < len(stockProductWrapper.Array); i++ {
-		fmt.Println("START stockProductWrapper")
-
-		stockRecordWrapper.Single.StockProductID = stockProductWrapper.Array[i].ID
-		err2 := stockRecordWrapper.Read()
-
-		if err2 != nil {
-			return err2
-		}
-		var spi StockProductInput
-		spi.ProductID = stockProductWrapper.Array[i].ProductID
-		fmt.Println(stockProductWrapper.Array[i])
-		spi.StockBalance = stockRecordWrapper.Single.StockBalance
-		spi.StockIn = stockRecordWrapper.Single.StockIn
-		fmt.Println(spi)
-		stockInput.StockProducts = append(stockInput.StockProducts, spi)
-	}
+	stockInput.StockProducts = stockProductWrapper.Array
 	siw.Single = stockInput
 	return nil
 }
@@ -271,6 +219,7 @@ func (sw *StockWrapper) Read() error {
 	// var stockProductWrapper StockProductWrapper
 
 	db := pg.Connect(services.PgOptions())
+	db.AddQueryHook(services.DbLogger{})
 	defer db.Close()
 	err := db.Model(&sw.Array).Relation(`User`).Relation(`ShiftWork`).Relation(`Branch`).Order("stock_date DESC").Select()
 
@@ -290,10 +239,10 @@ func (sw *StockWrapper) ReadById() error {
 	return nil
 }
 
-func (sw *StockWrapper) ReadByPreviousDate() error {
+func (sw *StockWrapper) ReadByFilters() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-	err := db.Model(&sw.Single).Where("stock_date::DATE = ?", sw.Single.StockDate).Select()
+	err := db.Model(&sw.Single).Where("stock_date::DATE = ?", sw.Single.StockDate).Where("branch_id = ?", sw.Single.BranchID).Select()
 	if err != nil {
 		return nil
 	}
@@ -313,12 +262,20 @@ func (sw *StockWrapper) Update() error {
 }
 
 func (sw *StockWrapper) Delete() error {
+	var stockProductWrapper StockProductWrapper
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-	db.Model(&sw.Single).Where("id = ?", sw.Single.ID).Delete()
-	err := db.Delete(&sw.Single)
+	stockProductWrapper.Single.StockID = sw.Single.ID
+	err := stockProductWrapper.Delete()
+
 	if err != nil {
+		return err
+	}
+
+	result, err1 := db.Model(&sw.Single).Where("id = ?", sw.Single.ID).WherePK().Delete()
+	if err1 != nil {
 		fmt.Println(err)
 	}
+	fmt.Println(result)
 	return nil
 }

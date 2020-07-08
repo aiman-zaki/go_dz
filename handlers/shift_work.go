@@ -21,10 +21,28 @@ func (rs ShiftWorkResources) Routes() chi.Router {
 
 		r.Get("/", rs.Read)
 		r.Post("/", rs.Create)
+		r.Get("/dtlist/{total}", rs.DtList)
 
 	})
-	return PriceProductUnitResources.Routes(PriceProductUnitResources{}, r)
+	return r
 
+}
+
+func (rs ShiftWorkResources) DtList(w http.ResponseWriter, r *http.Request) {
+	var dtlist models.DtListWrapper
+	dtlr, err := dtlist.Create(r)
+	var ew models.ShiftWorkWrapper
+	if err != nil {
+		return
+	}
+	err1, dtr := ew.DtList(dtlist, &dtlr)
+	if err1 != nil {
+		dtr.Eer = err1.Error()
+	} else {
+		dtr.Eer = ""
+	}
+
+	json.NewEncoder(w).Encode(dtr)
 }
 
 func (rs ShiftWorkResources) Read(w http.ResponseWriter, r *http.Request) {

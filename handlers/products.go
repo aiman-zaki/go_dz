@@ -34,6 +34,7 @@ func (rs ProductResources) Routes() chi.Router {
 		//       200:products
 		//       401:notAuthorized
 		r.Get("/", rs.Read)
+
 		// swagger:route POST /products Products createProduct
 		//
 		// Create a Product.
@@ -66,6 +67,7 @@ func (rs ProductResources) Routes() chi.Router {
 		//       200:product
 		//       401:notAuthorized
 		r.Put("/{id}", rs.Update)
+		r.Get("/{id}", rs.ReadByID)
 		// swagger:route GET /products/{id} Products getProductById
 		//
 		// GET a Product by ID.
@@ -81,7 +83,7 @@ func (rs ProductResources) Routes() chi.Router {
 		//    Responses:
 		//       200:product
 		//       401:notAuthorized
-		r.Get("/{id}", rs.ReadByID)
+		//r.Get("/{id}", rs.ReadByID)
 		// swagger:route DELETE /products/{id} Products deleteProductById
 		//
 		// DELETE a Product by ID.
@@ -98,8 +100,10 @@ func (rs ProductResources) Routes() chi.Router {
 		//       200:product
 		//       401:notAuthorized
 		r.Delete("/{id}", rs.Delete)
+		r.Get("/dtlist/{total}", rs.DtList)
+
 	})
-	return PriceProductUnitResources.Routes(PriceProductUnitResources{}, r)
+	return r
 
 }
 
@@ -107,6 +111,23 @@ func (rs ProductResources) Routes() chi.Router {
 type ProductWrapper struct {
 	// in:body
 	Product models.Product
+}
+
+func (rs ProductResources) DtList(w http.ResponseWriter, r *http.Request) {
+	var dtlist models.DtListWrapper
+	dtlr, err := dtlist.Create(r)
+	var ew models.ProductWrapper
+	if err != nil {
+		return
+	}
+	err1, dtr := ew.DtList(dtlist, &dtlr)
+	if err1 != nil {
+		dtr.Eer = err1.Error()
+	} else {
+		dtr.Eer = ""
+	}
+
+	json.NewEncoder(w).Encode(dtr)
 }
 
 func (rs ProductResources) Create(w http.ResponseWriter, r *http.Request) {

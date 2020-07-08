@@ -31,10 +31,7 @@ type Supply struct {
 	ID         int64 `json:"id"`
 	SupplierID int64 `json:"supplier_id"`
 	// readOnly:true
-	Supplier     *Supplier `pg:"fk:supplier_id" json:"supplier"`
-	SupplyUnitID int64     `json:"supply_unit_id"`
-	///readOnly:true
-	SupplyUnit *SupplyUnit `json:"supply_unit"`
+	Supplier *Supplier `pg:"fk:supplier_id" json:"supplier"`
 
 	StockID int64 `json:"stock_id"`
 	// readOnly:true

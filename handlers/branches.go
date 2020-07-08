@@ -98,11 +98,27 @@ func (rs BranchResources) Routes() chi.Router {
 		//       200:branch
 		//
 		r.Delete("/{id}", rs.Delete)
+		r.Get("/dtlist/{total}", rs.DtList)
 	})
 
 	return r
 }
+func (rs BranchResources) DtList(w http.ResponseWriter, r *http.Request) {
+	var dtlist models.DtListWrapper
+	dtlr, err := dtlist.Create(r)
+	var ew models.BranchWrapper
+	if err != nil {
+		return
+	}
+	err1, dtr := ew.DtList(dtlist, &dtlr)
+	if err1 != nil {
+		dtr.Eer = err1.Error()
+	} else {
+		dtr.Eer = ""
+	}
 
+	json.NewEncoder(w).Encode(dtr)
+}
 func (rs BranchResources) CountBranchExist(db *pg.DB, id int64, m models.Branch) int {
 
 	count, err := db.Model(&m).Where("id = ?", id).SelectAndCount()

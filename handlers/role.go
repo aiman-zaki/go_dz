@@ -50,6 +50,9 @@ func (rs RoleResources) Routes() chi.Router {
 		//    Responses:
 		//	   200: roles
 		r.Get("/", rs.Read)
+		r.Get("/dtlist/{total}", rs.DtList)
+		r.Get("/{id}", rs.ReadByID)
+		r.Put("/{id}", rs.Update)
 	})
 	return r
 }
@@ -76,6 +79,23 @@ type RolesResponse struct {
 	}
 }
 
+func (rs RoleResources) DtList(w http.ResponseWriter, r *http.Request) {
+	var dtlist models.DtListWrapper
+	dtlr, err := dtlist.Create(r)
+	var ew models.RoleWrapper
+	if err != nil {
+		return
+	}
+	err1, dtr := ew.DtList(dtlist, &dtlr)
+	if err1 != nil {
+		dtr.Eer = err1.Error()
+	} else {
+		dtr.Eer = ""
+	}
+
+	json.NewEncoder(w).Encode(dtr)
+}
+
 func (rs RoleResources) Create(w http.ResponseWriter, r *http.Request) {
 	var rw models.RoleWrapper
 	wrappers.JSONDecodeWrapper(w, r, &rw.Single)
@@ -97,8 +117,16 @@ func (rs RoleResources) Read(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(rw.Array)
 }
 
+func (rs RoleResources) ReadByID(w http.ResponseWriter, r *http.Request) {
+	var pw models.RoleWrapper
+	pw.Single.ID = IdAndConvert(r, "id")
+
+	pw.ReadById()
+	json.NewEncoder(w).Encode(pw.Single)
+}
 func (rs RoleResources) Update(w http.ResponseWriter, r *http.Request) {
 	var rw models.RoleWrapper
-	rw.Update()
 	wrappers.JSONDecodeWrapper(w, r, &rw.Single)
+	rw.Update()
+	json.NewEncoder(w).Encode(rw.Single)
 }

@@ -82,7 +82,8 @@ func (rs StocksResource) Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	fmt.Println(sw.Single.StockDate)
+	fmt.Println("HERE")
+	fmt.Println(sw.Single)
 	err = sw.Create()
 	if err != nil {
 		http.Error(w, err.Error(), 400)
@@ -130,14 +131,21 @@ func (res StocksResource) ReadByFilters(w http.ResponseWriter, r *http.Request) 
 	var ssw models.StockInputWrapper
 	layout := "2006-01-02T15:04:05.000Z"
 	prevDate := r.URL.Query()["prevDate"][0]
-	fmt.Println(prevDate)
+	branchIDString := r.URL.Query()["branchId"][0]
 	t, err := time.Parse(layout, prevDate)
 	fmt.Println(t)
 	if err != nil {
 		return
 	}
 	ssw.Single.StockDate = t
-	ssw.ReadByPreviousDate()
+
+	branchID, err1 := strconv.Atoi(branchIDString)
+	if err1 != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+	ssw.Single.BranchID = int64(branchID)
+	ssw.ReadByFilters()
 	json.NewEncoder(w).Encode(ssw.Single)
 
 }

@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/aiman-zaki/go_dz_http/models"
+	"github.com/aiman-zaki/go_dz_http/wrappers"
 	"github.com/go-chi/chi"
 )
 
@@ -49,6 +50,9 @@ func (rs UserResources) Routes() chi.Router {
 		//       200:user
 		//       401:notAuthorized
 		r.Get("/{id}", rs.ReadByID)
+		r.Get("/dtlist/{total}", rs.DtList)
+		r.Put("/{id}", rs.Update)
+		r.Post("/", rs.Create)
 	})
 	return r
 }
@@ -81,6 +85,34 @@ type UserResponse struct {
 	}
 }
 
+func (rs UserResources) DtList(w http.ResponseWriter, r *http.Request) {
+	var dtlist models.DtListWrapper
+	dtlr, err := dtlist.Create(r)
+	var ew models.UserWrapper
+	if err != nil {
+		return
+	}
+	err1, dtr := ew.DtList(dtlist, &dtlr)
+	if err1 != nil {
+		dtr.Eer = err1.Error()
+	} else {
+		dtr.Eer = ""
+	}
+
+	json.NewEncoder(w).Encode(dtr)
+}
+
+func (rs UserResources) Create(w http.ResponseWriter, r *http.Request) {
+	var rw models.UserWrapper
+	wrappers.JSONDecodeWrapper(w, r, &rw.Single)
+	err := rw.Create()
+	if err != nil {
+		http.Error(w, err.Error(), 409)
+	}
+	json.NewEncoder(w).Encode(rw.Single)
+
+}
+
 func (rs UserResources) ReadByID(w http.ResponseWriter, r *http.Request) {
 	var uw models.UserWrapper
 	stringID := chi.URLParam(r, "id")
@@ -103,5 +135,9 @@ func (rs UserResources) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	json.NewEncoder(w).Encode(uw.Array)
+
+}
+
+func (rs UserResources) Update(w http.ResponseWriter, r *http.Request) {
 
 }

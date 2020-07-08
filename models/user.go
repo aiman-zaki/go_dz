@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/aiman-zaki/go_dz_http/services"
@@ -13,23 +15,23 @@ import (
 type User struct {
 	// the id for this user
 	// readOnly: true
-	ID int64 `json:"id"`
+	ID int64 `json:"id" dt:"id"`
 	// swagger:ignore
 	//Auth *Auth `pg:"fk:auth_id" json:"auth"`
 	// the first name for this user
 	// required: true
 	// min length: 3
-	FirstName string `json:"first_name"`
+	FirstName string `json:"first_name" dt:"first_name" `
 	// the last name for this user
 	// required: true
 	// min length: 3
-	LastName string `json:"last_name"`
+	LastName string `json:"last_name"  dt:"last_name"`
 	// the salary for this user
-	Salary float64 `json:"salary"`
+	Salary float64 `json:"salary"  dt:"salary"`
 	// the dateCreated for this user
-	DateCreated time.Time `json:"date_created" pg:"default:now()"`
+	DateCreated time.Time `json:"date_created" pg:"default:now()"  dt:"date_created"`
 	// the dateUpdated for this user
-	DateUpdated time.Time `json:"date_updated" pg:"default:now()"`
+	DateUpdated time.Time `json:"date_updated" pg:"default:now()"  dt:"date_updated"`
 
 	RoleID int64 `json:"role_id"`
 	// swagger:ignore
@@ -37,8 +39,44 @@ type User struct {
 }
 
 type UserWrapper struct {
-	Single User
-	Array  []User
+	Single   User
+	Array    []User
+	Filtered int
+}
+
+func (ew *UserWrapper) DtList(dtlist DtListWrapper, dtlr *DtListRequest) (error, DtListResponse) {
+	db := pg.Connect(services.PgOptions())
+	db.AddQueryHook(services.DbLogger{})
+	var dtlistResponse DtListResponse
+	v := reflect.ValueOf(ew.Single)
+	values, where, whereValues, selectedColumn, errDtlist := dtlist.IterateValues(v, dtlr)
+	if errDtlist != nil {
+		return errDtlist, DtListResponse{}
+	}
+	query, filteredCount := dtlist.GenericQuery(selectedColumn, where, dtlr, "users")
+	_, err3 := db.Query(&ew.Array,
+		query, values...)
+
+	_, err4 := db.Query(&ew.Filtered, filteredCount, whereValues)
+	if err4 != nil {
+		return err4, DtListResponse{}
+	}
+
+	if err3 != nil {
+		fmt.Println(err3)
+		return err3, DtListResponse{}
+	}
+
+	count, err := db.Model(&ew.Single).Count()
+	if err != nil {
+		return err, DtListResponse{}
+	}
+	defer db.Close()
+	dtlistResponse.RecordsTotal = int64(count)
+	dtlistResponse.Data = ew.Array
+	dtlistResponse.Draw = 1
+	dtlistResponse.RecordsFiltered = int64((ew.Filtered))
+	return nil, dtlistResponse
 }
 
 // ReadByID :
@@ -47,7 +85,6 @@ func (uw *UserWrapper) ReadByID() error {
 	defer db.Close()
 	err := db.Model(&uw.Single).
 		Where(`"user"."id" = ?`, uw.Single.ID).
-		Relation("Auth").
 		Select()
 	if err != nil {
 		return err

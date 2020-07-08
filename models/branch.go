@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/aiman-zaki/go_dz_http/services"
@@ -33,12 +35,12 @@ type BranchResponse struct {
 // swagger:model
 type Branch struct {
 	// readonly:true
-	ID          int64     `json:"id"`
-	Branch      string    `json:"branch"`
-	Address     string    `json:"address"`
-	DateCreated time.Time `json:"date_created"`
+	ID          int64     `json:"id" dt:"id"`
+	Branch      string    `json:"branch" dt:"branch" `
+	Address     string    `json:"address" dt:"address"`
+	DateCreated time.Time `json:"date_created" dt:"date_created"`
 	// the dateUpdated for the product
-	DateUpdated time.Time `json:"date_updated"`
+	DateUpdated time.Time `json:"date_updated" dt:"date_updated"`
 }
 
 // swagger:parameters createBranch
@@ -53,8 +55,44 @@ type branchIdParam struct {
 }
 
 type BranchWrapper struct {
-	Single Branch
-	Array  []Branch
+	Single   Branch
+	Array    []Branch
+	Filtered int
+}
+
+func (ew *BranchWrapper) DtList(dtlist DtListWrapper, dtlr *DtListRequest) (error, DtListResponse) {
+	db := pg.Connect(services.PgOptions())
+	db.AddQueryHook(services.DbLogger{})
+	var dtlistResponse DtListResponse
+	v := reflect.ValueOf(ew.Single)
+	values, where, whereValues, selectedColumn, errDtlist := dtlist.IterateValues(v, dtlr)
+	if errDtlist != nil {
+		return errDtlist, DtListResponse{}
+	}
+	query, filteredCount := dtlist.GenericQuery(selectedColumn, where, dtlr, "branches")
+	_, err3 := db.Query(&ew.Array,
+		query, values...)
+
+	_, err4 := db.Query(&ew.Filtered, filteredCount, whereValues)
+	if err4 != nil {
+		return err4, DtListResponse{}
+	}
+
+	if err3 != nil {
+		fmt.Println(err3)
+		return err3, DtListResponse{}
+	}
+
+	count, err := db.Model(&ew.Single).Count()
+	if err != nil {
+		return err, DtListResponse{}
+	}
+	defer db.Close()
+	dtlistResponse.RecordsTotal = int64(count)
+	dtlistResponse.Data = ew.Array
+	dtlistResponse.Draw = 1
+	dtlistResponse.RecordsFiltered = int64((ew.Filtered))
+	return nil, dtlistResponse
 }
 
 func (bw *BranchWrapper) Create() error {
@@ -82,7 +120,7 @@ func (bw *BranchWrapper) Read() error {
 func (bw *BranchWrapper) ReadById() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-	err := db.Model(&bw.Single).Where(`"branch"."id" = ?"`, bw.Single.ID).Relation("Product").Relation("Branch").Select()
+	err := db.Model(&bw.Single).Where(`"branch"."id" = ?`, bw.Single.ID).Select()
 	if err != nil {
 		return err
 	}
@@ -93,7 +131,7 @@ func (bw *BranchWrapper) Update() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
 
-	_, err := db.Model(&bw.Single).Where("id = ?", bw.Single.ID).Update()
+	_, err := db.Model(&bw.Single).Where(`"branch"."id" = ?`, bw.Single.ID).Update()
 	if err != nil {
 		return err
 	}

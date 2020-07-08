@@ -1,6 +1,9 @@
 package models
 
 import (
+	"fmt"
+	"reflect"
+
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/go-pg/pg/v9"
 )
@@ -36,14 +39,14 @@ type SupplierResponse struct {
 type Supplier struct {
 	// the id
 	// readOnly: true
-	ID int64 `json:"id"`
+	ID int64 `json:"id" dt:"id"`
 	// name of org or person
-	Company        string `json:"company"`
-	PersonInCharge string `json:"person_in_charge"`
-	Email          string `json:"email"`
+	Company        string `json:"company" dt:"company"`
+	PersonInCharge string `json:"person_in_charge" dt:"person_in_charge"`
+	Email          string `json:"email" dt:"email"`
 	// address of org or person
-	Address string `json:"address"`
-	PhoneNo string `json:"phone_no"`
+	Address string `json:"address" dt:"address"`
+	PhoneNo string `json:"phone_no" dt:"phone_no"`
 }
 
 // swagger:parameters createSupplier
@@ -53,10 +56,45 @@ type createSupplierParam struct {
 }
 
 type SupplierWrapper struct {
-	Single Supplier
-	Array  []Supplier
+	Single   Supplier
+	Array    []Supplier
+	Filtered int
 }
 
+func (ew *SupplierWrapper) DtList(dtlist DtListWrapper, dtlr *DtListRequest) (error, DtListResponse) {
+	db := pg.Connect(services.PgOptions())
+	db.AddQueryHook(services.DbLogger{})
+	var dtlistResponse DtListResponse
+	v := reflect.ValueOf(ew.Single)
+	values, where, whereValues, selectedColumn, errDtlist := dtlist.IterateValues(v, dtlr)
+	if errDtlist != nil {
+		return errDtlist, DtListResponse{}
+	}
+	query, filteredCount := dtlist.GenericQuery(selectedColumn, where, dtlr, "suppliers")
+	_, err3 := db.Query(&ew.Array,
+		query, values...)
+
+	_, err4 := db.Query(&ew.Filtered, filteredCount, whereValues)
+	if err4 != nil {
+		return err4, DtListResponse{}
+	}
+
+	if err3 != nil {
+		fmt.Println(err3)
+		return err3, DtListResponse{}
+	}
+
+	count, err := db.Model(&ew.Single).Count()
+	if err != nil {
+		return err, DtListResponse{}
+	}
+	defer db.Close()
+	dtlistResponse.RecordsTotal = int64(count)
+	dtlistResponse.Data = ew.Array
+	dtlistResponse.Draw = 1
+	dtlistResponse.RecordsFiltered = int64((ew.Filtered))
+	return nil, dtlistResponse
+}
 func (sw *SupplierWrapper) Create() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
@@ -78,9 +116,21 @@ func (sw *SupplierWrapper) Read() error {
 }
 
 func (sw *SupplierWrapper) Update() error {
+	db := pg.Connect(services.PgOptions())
+	defer db.Close()
+	_, err := db.Model(&sw.Single).Where("id = ?", sw.Single.ID).Update()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (sw *SupplierWrapper) Delete() error {
+func (pw *SupplierWrapper) Delete() error {
+	db := pg.Connect(services.PgOptions())
+	defer db.Close()
+	_, err := db.Model(&pw.Single).Where("id = ?", pw.Single.ID).Delete()
+	if err != nil {
+		return err
+	}
 	return nil
 }
