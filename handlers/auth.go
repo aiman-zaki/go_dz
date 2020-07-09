@@ -11,12 +11,6 @@ import (
 
 type AuthResources struct{}
 
-// swagger:parameters authLogin authRegister
-type AuthWrapper struct {
-	// in:body
-	Auth models.Auth
-}
-
 func (rs AuthResources) Routes() chi.Router {
 	r := chi.NewRouter()
 	r.Route("/", func(r chi.Router) {

@@ -1,19 +1,8 @@
 package handlers
 
-import (
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"strconv"
-	"time"
-
-	"github.com/aiman-zaki/go_dz_http/models"
-	"github.com/aiman-zaki/go_dz_http/wrappers"
-	"github.com/go-chi/chi"
-)
-
 type StocksResource struct{}
 
+/*
 func (rs StocksResource) Routes() chi.Router {
 	r := chi.NewRouter()
 	r.Route("/", func(r chi.Router) {
@@ -75,6 +64,8 @@ func (rs StocksResource) Routes() chi.Router {
 	})
 	return r
 }
+
+
 
 func (rs StocksResource) Create(w http.ResponseWriter, r *http.Request) {
 	var sw models.StockInputWrapper
@@ -166,3 +157,4 @@ func (rs StocksResource) Delete(w http.ResponseWriter, r *http.Request) {
 	sw.Delete()
 	json.NewEncoder(w).Encode(sw.Single)
 }
+*/

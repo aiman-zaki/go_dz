@@ -5,8 +5,8 @@ import "time"
 type Expense struct {
 	ID int64 `json:"id"`
 
-	AccountID int64    `json:"account_id"`
-	Account   *Account `pg:"fk:account_id" json:"account"`
+	FinancialID int64      `json:"financial_id"`
+	Financial   *Financial `pg:"fk:financial_id" json:"financial"`
 
 	Amount float32 `json:"amount"`
 	Reason string  `json:"reason"`

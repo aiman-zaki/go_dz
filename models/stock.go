@@ -1,12 +1,11 @@
 package models
 
 import (
-	"errors"
-	"fmt"
 	"time"
 
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/go-pg/pg/v9"
+	"github.com/google/uuid"
 )
 
 // StockResponse :
@@ -29,253 +28,44 @@ type StocksResponse struct {
 	}
 }
 
-type FinancialStockInput struct {
-	Collection int64     `json:"collection"`
-	Expense    []Expense `json:"expenses"`
-}
-type StockInput struct {
-	StockDate     time.Time      `json:"stock_date"`
-	BranchID      int64          `json:"branch_id,string"`
-	UserID        int64          `json:"user_id,string"`
-	ShiftWorkID   int64          `json:"shift_work_id,string"`
-	DateCreated   time.Time      `json:"date_created"`
-	DateUpdated   time.Time      `json:"date_updated"`
-	StockProducts []StockProduct `json:"stock_products"`
-}
-
 // Stock : model
 // swagger:model
 type Stock struct {
-	// readOnly:true
-	ID        int64     `json:"id"`
-	StockDate time.Time `json:"stock_date"`
-	BranchID  int64     `json:"branch_id"`
-	//ProductID int64     `json:"product_id"`
-	//UnitID    int64 `json:"unit_id"`
-	//SupplierID int64    `json:"supplier_id"`
-	//Supplier   Supplier `pg:"fk:supplier_id" json:"supplier"`
-	UserID int64 `json:"user_id"`
-	User   User  `pg:"fk:user_id" json:"user"`
-	//Amount int64 `json:"amount"`
-	// readOnly:true
-	//Unit Unit `pg:"fk:unit_id" json:"unit"`
-	// readOnly:true
-	Branch      Branch    `pg:"fk:branch_id" json:"branch"`
-	ShiftWorkID int64     `json:"shift_work_id"`
-	ShiftWork   ShiftWork `pg:"fk:shift_work_id" json:"shift_work"`
-	// readOnly:true
-	//Product Product `pg:"fk:product_id" json:"product"`
+	ID       int64     `json:"id"`
+	RecordID uuid.UUID `json:"record_id" pg:"type:uuid"`
 
+	Record      Record    `json:"record" pg:"fk:record_id"`
 	DateCreated time.Time `json:"date_created"`
-	// the dateUpdated for the product
 	DateUpdated time.Time `json:"date_updated"`
 }
 
-// swagger:parameters updateStockById deleteStockById
-type idStockParam struct {
-	// in:path
-	ID int64 `json:"id"`
-}
-
-// swagger:parameters createStock
-type createStockParam struct {
-	// in:body
-	Stock *Stock
-}
 type StockWrapper struct {
 	Single Stock
 	Array  []Stock
 }
 
-type StockInputWrapper struct {
-	Single StockInput
-}
-
-func checkExistingStockDate(db *pg.DB, stock Stock) (bool, error) {
-	fmt.Println("checkExistingStockDate")
-
-	count, err := db.Model(&stock).Where("stock_date = ?", stock.StockDate).Where("branch_id = ?", stock.BranchID).Count()
-	fmt.Println(count)
-	if err != nil {
-		fmt.Println(err.Error())
-		return false, err
-	}
-	if count > 0 {
-		return true, nil
-	}
-	return false, nil
-
-}
-
-func (siw *StockInputWrapper) Create() error {
+func (st *StockWrapper) Create() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-
-	stock := Stock{0, siw.Single.StockDate, siw.Single.BranchID, siw.Single.UserID, User{}, Branch{}, siw.Single.ShiftWorkID, ShiftWork{}, time.Now(), time.Now()}
-
-	existed, errC := checkExistingStockDate(db, stock)
-	if errC != nil {
-		return errC
-	}
-
-	if existed {
-		return errors.New("Data Existed")
-	}
-
-	err := db.Insert(&stock)
+	err := db.Insert(&st.Single)
 	if err != nil {
 		return err
 	}
-	fmt.Println(siw.Single.StockProducts)
 
-	for i := 0; i < len(siw.Single.StockProducts); i++ {
-		var stockProduct StockProduct
-		stockProduct.ID = 0
-		stockProduct.StockID = stock.ID
-		stockProduct.ProductID = siw.Single.StockProducts[i].ProductID
-		stockProduct.StockIn = siw.Single.StockProducts[i].StockIn
-		stockProduct.StockBalance = siw.Single.StockProducts[i].StockBalance
-		err := db.Insert(&stockProduct)
-		if err != nil {
-			return err
-		}
-	}
 	return nil
 }
 
-func (siw *StockInputWrapper) ReadByFilters() error {
-	var stockInput StockInput
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
-
-	var stockWrapper StockWrapper
-	stockWrapper.Single.StockDate = siw.Single.StockDate
-	stockWrapper.Single.BranchID = siw.Single.BranchID
-	err := stockWrapper.ReadByFilters()
-	if err != nil {
-		return err
-	}
-	stockInput.BranchID = stockWrapper.Single.BranchID
-	stockInput.StockDate = stockWrapper.Single.StockDate
-	stockInput.UserID = stockWrapper.Single.UserID
-	stockInput.ShiftWorkID = stockWrapper.Single.ShiftWorkID
-	stockInput.DateCreated = stockWrapper.Single.DateCreated
-	stockInput.DateUpdated = stockWrapper.Single.DateUpdated
-
-	var stockProductWrapper StockProductWrapper
-	stockProductWrapper.Single.StockID = stockWrapper.Single.ID
-	err1 := stockProductWrapper.Read()
-	if err1 != nil {
-		return err1
-	}
-	stockInput.StockProducts = stockProductWrapper.Array
-	siw.Single = stockInput
-	return nil
-}
-
-func (siw *StockInputWrapper) ReadByID(ID int64) error {
-	var stockInput StockInput
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
-
-	var stockWrapper StockWrapper
-	stockWrapper.Single.ID = ID
-	err := stockWrapper.ReadById()
-	if err != nil {
-		return err
-	}
-	stockInput.BranchID = stockWrapper.Single.BranchID
-	stockInput.StockDate = stockWrapper.Single.StockDate
-	stockInput.UserID = stockWrapper.Single.UserID
-	stockInput.ShiftWorkID = stockWrapper.Single.ShiftWorkID
-	stockInput.DateCreated = stockWrapper.Single.DateCreated
-	stockInput.DateUpdated = stockWrapper.Single.DateUpdated
-
-	var stockProductWrapper StockProductWrapper
-	stockProductWrapper.Single.StockID = ID
-	err1 := stockProductWrapper.Read()
-	if err1 != nil {
-		return err1
-	}
-
-	fmt.Println("END stockProductWrapper")
-
-	stockInput.StockProducts = stockProductWrapper.Array
-	siw.Single = stockInput
-	return nil
-}
-
-func (sw StockWrapper) Create() error {
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
-	err := db.Insert(&sw.Single)
-	if err != nil {
-		fmt.Println(err)
-	}
-	return nil
-}
-
-func (sw *StockWrapper) Read() error {
-	// var stockProductWrapper StockProductWrapper
-
+func (st *StockWrapper) ReadByRecordId() error {
 	db := pg.Connect(services.PgOptions())
 	db.AddQueryHook(services.DbLogger{})
 	defer db.Close()
-	err := db.Model(&sw.Array).Relation(`User`).Relation(`ShiftWork`).Relation(`Branch`).Order("stock_date DESC").Select()
-
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (sw *StockWrapper) ReadById() error {
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
-	err := db.Model(&sw.Single).Where("id = ?", sw.Single.ID).Select()
-	if err != nil {
-		fmt.Println(err)
-	}
-	return nil
-}
-
-func (sw *StockWrapper) ReadByFilters() error {
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
-	err := db.Model(&sw.Single).Where("stock_date::DATE = ?", sw.Single.StockDate).Where("branch_id = ?", sw.Single.BranchID).Select()
-	if err != nil {
-		return nil
-	}
-	fmt.Println("count")
-
-	return nil
-}
-
-func (sw *StockWrapper) Update() error {
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
-	_, err := db.Model(&sw.Single).Where(`"stock"."id" = ?`, sw.Single.ID).Update()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (sw *StockWrapper) Delete() error {
-	var stockProductWrapper StockProductWrapper
-	db := pg.Connect(services.PgOptions())
-	defer db.Close()
-	stockProductWrapper.Single.StockID = sw.Single.ID
-	err := stockProductWrapper.Delete()
-
+	err := db.Model(&st.Array).
+		Join(`INNER JOIN stocks as s ON stock_product.stock_id = s.stock.id`).
+		Where("record_id = ?", st.Single.RecordID).
+		Select()
 	if err != nil {
 		return err
 	}
 
-	result, err1 := db.Model(&sw.Single).Where("id = ?", sw.Single.ID).WherePK().Delete()
-	if err1 != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(result)
 	return nil
 }

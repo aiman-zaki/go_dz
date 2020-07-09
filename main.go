@@ -80,8 +80,8 @@ func main() {
 	r.Mount("/api/branches", handlers.BranchResources.Routes(handlers.BranchResources{}))
 	r.Mount("/api/auth", handlers.AuthResources.Routes(handlers.AuthResources{}))
 	r.Mount("/api/roles", handlers.RoleResources.Routes(handlers.RoleResources{}))
-	r.Mount("/api/stocks", handlers.StocksResource.Routes(handlers.StocksResource{}))
-
+	//r.Mount("/api/stocks", handlers.StocksResource.Routes(handlers.StocksResource{}))
+	r.Mount("/api/records", handlers.RecordResources.Routes(handlers.RecordResources{}))
 	r.Mount("/api/master-data/shift-works", handlers.ShiftWorkResources.Routes(handlers.ShiftWorkResources{}))
 
 	r.Mount("/api/suppliers", handlers.SupplierResources.Routes(handlers.SupplierResources{}))

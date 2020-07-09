@@ -57,77 +57,8 @@ func runTestModel(l int) {
 	productWrapper.Create()
 	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
 	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Makan", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Single = Product{0, "Keropok Basah", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
 	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
 	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Makan", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Single = Product{0, "Keropok Basah", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Makan", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Single = Product{0, "Keropok Basah", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Makan", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Single = Product{0, "Keropok Basah", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Makan", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Single = Product{0, "Keropok Basah", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Makan", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Single = Product{0, "Keropok Basah", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Makan", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Single = Product{0, "Keropok Basah", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Makan", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Single = Product{0, "Keropok Basah", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Makan", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Single = Product{0, "Keropok Basah", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Makan", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Single = Product{0, "Keropok Basah", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Makan", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Single = Product{0, "Keropok Basah", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Makan", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Single = Product{0, "Keropok Basah", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Makan", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Single = Product{0, "Keropok Basah", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Makan", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Single = Product{0, "Keropok Basah", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
-	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Makan", 10.00, 20.00, time.Now(), time.Now(), 0}
 	testModel(&productWrapper)
 
 	var branchWrapper BranchWrapper
@@ -155,28 +86,22 @@ func InitDB() {
 	models := []interface{}{
 		(*Role)(nil),
 		(*Auth)(nil),
+		(*ShiftWork)(nil),
 		(*User)(nil),
 		(*Branch)(nil),
-		//(*SupplyUnit)(nil),
+		(*Record)(nil),
 		(*Supplier)(nil),
 		(*Product)(nil),
 		(*ProductSupplier)(nil),
-
-		//(*PriceProductUnit)(nil),
-		(*ShiftWork)(nil),
 		(*Stock)(nil),
-		(*Account)(nil),
+		(*Financial)(nil),
 		(*Expense)(nil),
 		(*StockProduct)(nil),
-		//(*StockRecord)(nil),
-
-		//(*Supply)(nil),
-		//(*Payment)(nil),
 	}
 
 	for _, model := range models {
 		services.CreateTable(db, model)
 	}
 
-	runTestModel(len(models))
+	//runTestModel(len(models))
 }
