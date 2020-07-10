@@ -3,9 +3,11 @@ package models
 import (
 	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/go-pg/pg/v9"
+	"github.com/google/uuid"
 )
 
 // SuppliersResponse :
@@ -39,14 +41,16 @@ type SupplierResponse struct {
 type Supplier struct {
 	// the id
 	// readOnly: true
-	ID int64 `json:"id" dt:"id"`
+	ID uuid.UUID `json:"id" dt:"id" pg:"type:uuid"`
 	// name of org or person
 	Company        string `json:"company" dt:"company"`
 	PersonInCharge string `json:"person_in_charge" dt:"person_in_charge"`
 	Email          string `json:"email" dt:"email"`
 	// address of org or person
-	Address string `json:"address" dt:"address"`
-	PhoneNo string `json:"phone_no" dt:"phone_no"`
+	Address     string    `json:"address" dt:"address"`
+	PhoneNo     string    `json:"phone_no" dt:"phone_no"`
+	DateCreated time.Time `json:"date_created"`
+	DateUpdated time.Time `json:"date_updated"`
 }
 
 // swagger:parameters createSupplier
@@ -98,6 +102,7 @@ func (ew *SupplierWrapper) DtList(dtlist DtListWrapper, dtlr *DtListRequest) (er
 func (sw *SupplierWrapper) Create() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
+	sw.Single.ID = uuid.New()
 	err := db.Insert(&sw.Single)
 	if err != nil {
 		return err

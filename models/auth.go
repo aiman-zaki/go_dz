@@ -4,11 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/jwtauth"
 	"github.com/go-pg/pg/v9"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -18,7 +20,7 @@ import (
 type Auth struct {
 	// id for user
 	// readOnly: true
-	ID int64 `json:"id"`
+	ID uuid.UUID `json:"id" pg:"type:uuid"`
 	// email for auth
 	// required: true
 	Email string `json:"email"`
@@ -33,7 +35,8 @@ type Auth struct {
 	RefreshToken string `pg:"-" json:"refresh_token"`
 	// the role for this user
 	// not required during login
-
+	DateCreated time.Time `json:"date_created"`
+	DateUpdated time.Time `json:"date_updated"`
 }
 
 type AuthWrapper struct {
@@ -56,6 +59,7 @@ func (aw *AuthWrapper) Register() error {
 	}
 	hashed := Auth.HashAndSalt(Auth{}, []byte(aw.Auth.Password))
 	aw.Auth.Password = hashed
+	aw.Auth.ID = uuid.New()
 	db.Insert(&aw.Auth)
 	aw.User.ID = aw.Auth.ID
 	db.Insert(&aw.User)

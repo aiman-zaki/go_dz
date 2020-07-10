@@ -7,6 +7,7 @@ import (
 
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/go-pg/pg/v9"
+	"github.com/google/uuid"
 )
 
 // User represents the product for this application
@@ -15,7 +16,7 @@ import (
 type User struct {
 	// the id for this user
 	// readOnly: true
-	ID int64 `json:"id" dt:"id"`
+	ID uuid.UUID `json:"id" dt:"id" pg:"type:uuid"`
 	// swagger:ignore
 	//Auth *Auth `pg:"fk:auth_id" json:"auth"`
 	// the first name for this user

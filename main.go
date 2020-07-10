@@ -85,7 +85,6 @@ func main() {
 	r.Mount("/api/master-data/shift-works", handlers.ShiftWorkResources.Routes(handlers.ShiftWorkResources{}))
 
 	r.Mount("/api/suppliers", handlers.SupplierResources.Routes(handlers.SupplierResources{}))
-	r.Mount("/api/supplies", handlers.SupplyResources.Routes(handlers.SupplyResources{}))
 
 	//swagger-ui serve
 	fs := http.FileServer(http.Dir("./swagger_ui"))

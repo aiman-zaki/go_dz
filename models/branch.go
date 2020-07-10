@@ -7,6 +7,7 @@ import (
 
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/go-pg/pg/v9"
+	"github.com/google/uuid"
 )
 
 // BranchesResponse : List all branches
@@ -35,7 +36,7 @@ type BranchResponse struct {
 // swagger:model
 type Branch struct {
 	// readonly:true
-	ID          int64     `json:"id" dt:"id"`
+	ID          uuid.UUID `json:"id" dt:"id" pg:"type:uuid"`
 	Branch      string    `json:"branch" dt:"branch" `
 	Address     string    `json:"address" dt:"address"`
 	DateCreated time.Time `json:"date_created" dt:"date_created"`
@@ -98,6 +99,7 @@ func (ew *BranchWrapper) DtList(dtlist DtListWrapper, dtlr *DtListRequest) (erro
 func (bw *BranchWrapper) Create() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
+	bw.Single.ID = uuid.New()
 	err := db.Insert(&bw.Single)
 	if err != nil {
 		return err

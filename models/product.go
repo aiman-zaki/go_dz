@@ -7,6 +7,7 @@ import (
 
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/go-pg/pg/v9"
+	"github.com/google/uuid"
 )
 
 // ProductsResponse : List all products
@@ -37,7 +38,7 @@ type ProductResponse struct {
 // swagger:model
 type Product struct {
 	// the id for the product
-	ID int64 `json:"id" dt:"id"`
+	ID uuid.UUID `json:"id" dt:"id" pg:"type:uuid"`
 	// the name for the product
 	Product string `json:"product" dt:"product"`
 	// the dateCreated for the product
@@ -110,6 +111,8 @@ func (ew *ProductWrapper) DtList(dtlist DtListWrapper, dtlr *DtListRequest) (err
 func (pw *ProductWrapper) Create() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
+	pw.Single.ID = uuid.New()
+
 	err := db.Insert(&pw.Single)
 	if err != nil {
 		return err

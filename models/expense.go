@@ -1,12 +1,16 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Expense struct {
 	ID int64 `json:"id"`
 
-	FinancialID int64      `json:"financial_id"`
-	Financial   *Financial `pg:"fk:financial_id" json:"financial"`
+	FinancialID uuid.UUID  `json:"financial_id" pg:"type:uuid"`
+	Financial   *Financial `pg:"fk:financial_id" json:"-"`
 
 	Amount float32 `json:"amount"`
 	Reason string  `json:"reason"`

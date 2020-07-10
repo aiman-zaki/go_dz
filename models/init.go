@@ -7,6 +7,7 @@ import (
 
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/go-pg/pg/v9"
+	"github.com/google/uuid"
 )
 
 func loading(current float64, total float64) float64 {
@@ -45,36 +46,36 @@ func testModel(t Model) {
 func runTestModel(l int) {
 
 	var roleWrapper RoleWrapper
-	roleWrapper.Single = Role{0, "SUPER_ADMINISTRATOR", "Super Administrator"}
+	roleWrapper.Single = Role{0, "SUPER_ADMINISTRATOR", "Super Administrator", time.Now(), time.Now()}
 	roleWrapper.Create()
-	roleWrapper.Single = Role{0, "ADMINISTARTOR", "Admin"}
+	roleWrapper.Single = Role{0, "ADMINISTARTOR", "Admin", time.Now(), time.Now()}
 	roleWrapper.Create()
-	roleWrapper.Single = Role{0, "WORKER", "Worker"}
+	roleWrapper.Single = Role{0, "WORKER", "Worker", time.Now(), time.Now()}
 	roleWrapper.Create()
 
 	var productWrapper ProductWrapper
-	productWrapper.Single = Product{0, "Keropok Basah", 10.00, 20.00, time.Now(), time.Now(), 0}
+	productWrapper.Single = Product{uuid.New(), "Keropok Basah", 10.00, 20.00, time.Now(), time.Now(), 0}
 	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
+	productWrapper.Single = Product{uuid.New(), "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
 	productWrapper.Create()
-	productWrapper.Single = Product{0, "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
+	productWrapper.Single = Product{uuid.New(), "Keropok Kering", 10.00, 20.00, time.Now(), time.Now(), 0}
 	productWrapper.Create()
 	testModel(&productWrapper)
 
 	var branchWrapper BranchWrapper
-	branchWrapper.Single = Branch{0, "Rawang", "Depan Sekolah", time.Now(), time.Now()}
+	branchWrapper.Single = Branch{uuid.New(), "Rawang", "Depan Sekolah", time.Now(), time.Now()}
 	err := branchWrapper.Create()
 	if err != nil {
 		fmt.Println(err)
 	}
-	branchWrapper.Single = Branch{0, "Selayang", "Depan Sekolah", time.Now(), time.Now()}
+	branchWrapper.Single = Branch{uuid.New(), "Selayang", "Depan Sekolah", time.Now(), time.Now()}
 	branchWrapper.Create()
-	branchWrapper.Single = Branch{0, "Subang", "Depan Sekolah", time.Now(), time.Now()}
+	branchWrapper.Single = Branch{uuid.New(), "Subang", "Depan Sekolah", time.Now(), time.Now()}
 	branchWrapper.Create()
 
 	var userWrapper UserWrapper
 
-	userWrapper.Single = User{0, "Leman", "Power", 1200, time.Now(), time.Now(), 3, &Role{}}
+	userWrapper.Single = User{uuid.New(), "Leman", "Power", 1200, time.Now(), time.Now(), 3, &Role{}}
 	userWrapper.Create()
 
 }

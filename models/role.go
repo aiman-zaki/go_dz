@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/go-pg/pg/v9"
@@ -16,8 +17,10 @@ type Role struct {
 	// readOnly: true
 	ID int64 `json:"id" dt:"id"`
 	// the role
-	Key  string `json:"key" dt:"key"`
-	Text string `json:"text" dt:"text"`
+	Key         string    `json:"key" dt:"key"`
+	Text        string    `json:"text" dt:"text"`
+	DateCreated time.Time `json:"date_created"`
+	DateUpdated time.Time `json:"date_updated"`
 }
 
 type RoleWrapper struct {

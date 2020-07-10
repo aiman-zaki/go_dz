@@ -7,6 +7,7 @@ import (
 	"github.com/aiman-zaki/go_dz_http/models"
 	"github.com/aiman-zaki/go_dz_http/wrappers"
 	"github.com/go-chi/chi"
+	"github.com/google/uuid"
 )
 
 type SupplierResources struct{}
@@ -77,11 +78,13 @@ func (rs SupplierResources) Create(w http.ResponseWriter, r *http.Request) {
 
 func (rs SupplierResources) Update(w http.ResponseWriter, r *http.Request) {
 	var pw models.SupplierWrapper
-	pw.Single.ID = IdAndConvert(r, "id")
-	if pw.Single.ID == -1 {
-		http.Error(w, "Invalid ID", 400)
+	var err error
+
+	pw.Single.ID, err = uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
 		return
 	}
+
 	wrappers.JSONDecodeWrapper(w, r, &pw.Single)
 	pw.Update()
 	json.NewEncoder(w).Encode(pw.Single)
@@ -89,8 +92,12 @@ func (rs SupplierResources) Update(w http.ResponseWriter, r *http.Request) {
 
 func (rs SupplierResources) Delete(w http.ResponseWriter, r *http.Request) {
 	var pw models.SupplierWrapper
-	pw.Single.ID = IdAndConvert(r, "id")
+	var err error
 
+	pw.Single.ID, err = uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		return
+	}
 	pw.Delete()
 	json.NewEncoder(w).Encode(&pw.Single)
 }

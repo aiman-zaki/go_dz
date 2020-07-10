@@ -1,9 +1,17 @@
 package models
 
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
+
 type ProductSupplier struct {
-	ID         int64     `json:"id"`
-	ProductID  int64     `json:"product_id"`
-	Product    *Product  `pg:"fk:product_id" json:"product"`
-	SupplierID int64     `json:"supplier_id"`
-	Supplier   *Supplier `pg:"fk:supplier_id" json:"supplier"`
+	ID          int64     `json:"id"`
+	ProductID   uuid.UUID `json:"product_id" pg:"type:uuid"`
+	Product     *Product  `pg:"fk:product_id" json:"product"`
+	SupplierID  uuid.UUID `json:"supplier_id" pg:"type:uuid"`
+	Supplier    *Supplier `pg:"fk:supplier_id" json:"supplier"`
+	DateCreated time.Time `json:"date_created"`
+	DateUpdated time.Time `json:"date_updated"`
 }

@@ -3,11 +3,11 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/aiman-zaki/go_dz_http/models"
 	"github.com/aiman-zaki/go_dz_http/wrappers"
 	"github.com/go-chi/chi"
+	"github.com/google/uuid"
 )
 
 type UserResources struct{}
@@ -115,13 +115,12 @@ func (rs UserResources) Create(w http.ResponseWriter, r *http.Request) {
 
 func (rs UserResources) ReadByID(w http.ResponseWriter, r *http.Request) {
 	var uw models.UserWrapper
-	stringID := chi.URLParam(r, "id")
-	id, err := strconv.Atoi(stringID)
+	var err error
+	uw.Single.ID, err = uuid.Parse(chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, err.Error(), 400)
 		return
 	}
-	uw.Single.ID = int64(id)
 	uw.ReadByID()
 	json.NewEncoder(w).Encode(uw.Single)
 }

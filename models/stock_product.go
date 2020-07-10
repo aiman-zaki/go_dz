@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/go-pg/pg/v9"
@@ -11,14 +12,16 @@ import (
 type StockProduct struct {
 	ID int64 `json:"id"`
 
-	StockID int64  `json:"stock_id"`
+	StockID int64  `json:"stock_id" `
 	Stock   *Stock `pg:"fk:stock_id" json:"-"`
 
-	ProductID int64   `json:"product_id"`
-	Product   Product `fk:"product_id" json:"-"`
+	ProductID uuid.UUID `json:"product_id" pg:"type:uuid"`
+	Product   Product   `fk:"product_id" json:"-"`
 
-	StockIn      int64 `json:"stock_in"`
-	StockBalance int64 `json:"stock_balance"`
+	StockIn      int64     `json:"stock_in"`
+	StockBalance int64     `json:"stock_balance"`
+	DateCreated  time.Time `json:"date_created"`
+	DateUpdated  time.Time `json:"date_updated"`
 }
 
 type StockProductWrapper struct {

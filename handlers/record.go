@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -19,8 +20,10 @@ func (rr RecordResources) Routes() chi.Router {
 	r.Route("/", func(r chi.Router) {
 		r.Get("/", rr.Read)
 		r.Post("/", rr.CreateWithTranscation)
-		r.Get("/{id}", rr.ReadRecordFromById)
+		r.Get("/{id}", rr.ReadRecordFormById)
 		r.Get("/filters", rr.ReadWithDateBranchShift)
+		r.Put("/", rr.Update)
+		r.Delete("/{id}", rr.Delete)
 	})
 	return r
 }
@@ -28,6 +31,7 @@ func (rr RecordResources) Routes() chi.Router {
 func (rs RecordResources) CreateWithTranscation(w http.ResponseWriter, r *http.Request) {
 	var rfw models.RecordFormWrapper
 	err := wrappers.JSONDecodeWrapper(w, r, &rfw.Single)
+	fmt.Println(err)
 	if err != nil {
 		return
 	}
@@ -36,6 +40,22 @@ func (rs RecordResources) CreateWithTranscation(w http.ResponseWriter, r *http.R
 		http.Error(w, err1.Error(), 400)
 		return
 	}
+}
+
+func (res RecordResources) Delete(w http.ResponseWriter, r *http.Request) {
+	var rw models.RecordFormWrapper
+	var err error
+	rw.Single.Record.ID, err = uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+	err = rw.Delete()
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+
 }
 
 func (rs RecordResources) Create(w http.ResponseWriter, r *http.Request) {
@@ -73,6 +93,21 @@ func (rs RecordResources) Create(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (rs RecordResources) Update(w http.ResponseWriter, r *http.Request) {
+	var rfw models.RecordFormWrapper
+	err := wrappers.JSONDecodeWrapper(w, r, &rfw.Single)
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+	err1 := rfw.UpdateRecordForm()
+	if err1 != nil {
+		http.Error(w, err1.Error(), 400)
+		return
+	}
+
+}
+
 func (rs RecordResources) Read(w http.ResponseWriter, r *http.Request) {
 	page := r.URL.Query()["page"][0]
 	pageLimit := r.URL.Query()["pageLimit"][0]
@@ -92,27 +127,21 @@ func (rs RecordResources) Read(w http.ResponseWriter, r *http.Request) {
 func (res RecordResources) ReadWithDateBranchShift(w http.ResponseWriter, r *http.Request) {
 	var rw models.RecordWrapper
 	var spw models.StockProductWrapper
+	var err error
 	layout := "2006-01-02T15:04:05.000Z"
 	date := r.URL.Query()["date"][0]
 	t, err := time.Parse(layout, date)
 	if err != nil {
 		return
 	}
-	branchID := r.URL.Query()["branchId"][0]
-	shiftWorkID := r.URL.Query()["shiftWorkId"][0]
 	rw.Single.Date = t
-	bID, err1 := strconv.Atoi(branchID)
-	if err1 != nil {
-		http.Error(w, err1.Error(), 400)
+
+	rw.Single.BranchID, err = uuid.Parse(r.URL.Query()["branchId"][0])
+	rw.Single.ShiftWorkID, err = uuid.Parse(r.URL.Query()["shiftWorkId"][0])
+	if err != nil {
+		http.Error(w, err.Error(), 400)
 		return
 	}
-	sID, err2 := strconv.Atoi(shiftWorkID)
-	if err2 != nil {
-		http.Error(w, err2.Error(), 400)
-		return
-	}
-	rw.Single.BranchID = int64(bID)
-	rw.Single.ShiftWorkID = int64(sID)
 	err3 := rw.ReadWithDateBranchShift()
 	if err3 != nil {
 		http.Error(w, err3.Error(), 400)
@@ -129,7 +158,7 @@ func (res RecordResources) ReadWithDateBranchShift(w http.ResponseWriter, r *htt
 	json.NewEncoder(w).Encode(rfw.Single)
 }
 
-func (rs RecordResources) ReadRecordFromById(w http.ResponseWriter, r *http.Request) {
+func (rs RecordResources) ReadRecordFormById(w http.ResponseWriter, r *http.Request) {
 	var rw models.RecordFormWrapper
 	var st models.StockProductWrapper
 	var errParam error
@@ -147,7 +176,6 @@ func (rs RecordResources) ReadRecordFromById(w http.ResponseWriter, r *http.Requ
 		http.Error(w, err1.Error(), 400)
 		return
 	}
-
 	rw.Single.StockProducts = st.Array
 
 	json.NewEncoder(w).Encode(rw.Single)

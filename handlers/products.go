@@ -9,6 +9,7 @@ import (
 	"github.com/aiman-zaki/go_dz_http/models"
 	"github.com/aiman-zaki/go_dz_http/wrappers"
 	"github.com/go-chi/chi"
+	"github.com/google/uuid"
 )
 
 type ProductResources struct{}
@@ -145,8 +146,9 @@ func (rs ProductResources) Create(w http.ResponseWriter, r *http.Request) {
 
 func (res ProductResources) Update(w http.ResponseWriter, r *http.Request) {
 	var pw models.ProductWrapper
-	pw.Single.ID = IdAndConvert(r, "id")
-	if pw.Single.ID == -1 {
+	var err error
+	pw.Single.ID, err = uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
 		http.Error(w, "Invalid ID", 400)
 		return
 	}
@@ -158,7 +160,12 @@ func (res ProductResources) Update(w http.ResponseWriter, r *http.Request) {
 
 func (res ProductResources) Delete(w http.ResponseWriter, r *http.Request) {
 	var pw models.ProductWrapper
-	pw.Single.ID = IdAndConvert(r, "id")
+	var err error
+	pw.Single.ID, err = uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "Invalid ID", 400)
+		return
+	}
 
 	pw.Delete()
 	json.NewEncoder(w).Encode(&pw.Single)
@@ -167,7 +174,12 @@ func (res ProductResources) Delete(w http.ResponseWriter, r *http.Request) {
 
 func (rs ProductResources) ReadByID(w http.ResponseWriter, r *http.Request) {
 	var pw models.ProductWrapper
-	pw.Single.ID = IdAndConvert(r, "id")
+	var err error
+	pw.Single.ID, err = uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "Invalid ID", 400)
+		return
+	}
 
 	pw.ReadById()
 	json.NewEncoder(w).Encode(pw.Single)

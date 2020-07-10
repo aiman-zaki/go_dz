@@ -7,10 +7,11 @@ import (
 
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/go-pg/pg/v9"
+	"github.com/google/uuid"
 )
 
 type ShiftWork struct {
-	ID          int64     `json:"id" dt:"id" `
+	ID          uuid.UUID `json:"id" dt:"id" pg:"type:uuid"`
 	Shift       string    `json:"shift" dt:"shift" `
 	DateCreated time.Time `json:"date_created"  dt:"date_created" `
 	DateUpdated time.Time `json:"date_updated"  dt:"date_updated" `
@@ -60,6 +61,7 @@ func (ew *ShiftWorkWrapper) DtList(dtlist DtListWrapper, dtlr *DtListRequest) (e
 func (ssw *ShiftWorkWrapper) Create() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
+	ssw.Single.ID = uuid.New()
 	err := db.Insert(&ssw.Single)
 	if err != nil {
 		return err

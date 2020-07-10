@@ -13,14 +13,16 @@ import (
 type Record struct {
 	ID       uuid.UUID `json:"id" pg:"type:uuid"`
 	Date     time.Time `json:"date"`
-	BranchID int64     `json:"branch_id,string"`
+	BranchID uuid.UUID `json:"branch_id" pg:"type:uuid"`
 	Branch   Branch    `pg:"fk:branch_id" json:"branch"`
 
-	ShiftWorkID int64     `json:"shift_work_id,string"`
+	ShiftWorkID uuid.UUID `json:"shift_work_id" pg:"type:uuid"`
 	ShiftWork   ShiftWork `pg:"fk:shift_work_id" json:"shift_work"`
 
-	UserID int64 `json:"user_id,string"`
-	User   User  `pg:"fk:user_id" json:"user"`
+	UserID      uuid.UUID `json:"user_id" pg:"type:uuid"`
+	User        User      `pg:"fk:user_id" json:"user"`
+	DateCreated time.Time `json:"date_created"`
+	DateUpdated time.Time `json:"date_updated"`
 }
 
 type RecordWrapper struct {
@@ -34,6 +36,8 @@ type RecordWrapper struct {
 type RecordForm struct {
 	Record        Record         `json:"record"`
 	StockProducts []StockProduct `json:"stock_products"`
+	Financial     Financial      `json:"financial" `
+	Expenses      []Expense      `json:"expenses"`
 }
 
 type RecordFormWrapper struct {
@@ -77,11 +81,60 @@ func (rw *RecordWrapper) Read() error {
 	db := pg.Connect(services.PgOptions())
 	db.AddQueryHook(services.DbLogger{})
 	defer db.Close()
-	count, err := db.Model(&rw.Array).Relation("User").Relation("Branch").Relation("ShiftWork").Offset(rw.PageLimit * (rw.Page - 1)).Limit(rw.PageLimit).SelectAndCount()
+	count, err := db.Model(&rw.Array).
+		Relation("User").
+		Relation("Branch").
+		Relation("ShiftWork").
+		Offset(rw.PageLimit * (rw.Page - 1)).
+		Limit(rw.PageLimit).Order(`date DESC`).SelectAndCount()
 	if err != nil {
 		return err
 	}
 	rw.Total = count
+	return nil
+}
+
+func (rw *RecordFormWrapper) Delete() error {
+	db := pg.Connect(services.PgOptions())
+	defer db.Close()
+	err := db.RunInTransaction(func(tx *pg.Tx) error {
+		var f Financial
+		var s Stock
+		var err error
+		err = tx.Model(&f).Where(`record_id = ?`, rw.Single.Record.ID).Select()
+		if err != nil {
+			return err
+		}
+		_, err = tx.Model((*Expense)(nil)).Where(`financial_id = ?`, f.ID).Delete()
+		if err != nil {
+			return err
+		}
+		err = tx.Delete(&f)
+		if err != nil {
+			return err
+		}
+		err = tx.Model(&s).Where(`record_id = ?`, rw.Single.Record.ID).Select()
+		if err != nil {
+			return err
+		}
+		_, err = tx.Model((*StockProduct)(nil)).Where(`stock_id = ?`, s.ID).Delete()
+		if err != nil {
+			return err
+		}
+		err = tx.Delete(&s)
+		if err != nil {
+			return err
+		}
+		_, err = tx.Model((*Record)(nil)).Where(`id = ?`, rw.Single.Record.ID).Delete()
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -110,6 +163,7 @@ func (rw *RecordFormWrapper) IfDataExist(db *pg.DB) (bool, error) {
 }
 
 func (rw *RecordFormWrapper) ReadRecordForm() error {
+	var fw FinancialWrapper
 	db := pg.Connect(services.PgOptions())
 	db.AddQueryHook(services.DbLogger{})
 	defer db.Close()
@@ -117,6 +171,13 @@ func (rw *RecordFormWrapper) ReadRecordForm() error {
 	if err != nil {
 		return err
 	}
+	fw.RecordID = rw.Single.Record.ID
+	err1 := fw.ReadByRecordId()
+	if err1 != nil {
+		return err1
+	}
+	rw.Single.Financial = fw.Financial
+	rw.Single.Expenses = fw.Expenses
 	return nil
 }
 
@@ -127,6 +188,10 @@ func (rfw *RecordFormWrapper) CreateRecordForm() error {
 	db := pg.Connect(services.PgOptions())
 	db.AddQueryHook(services.DbLogger{})
 	exist, err := rfw.IfDataExist(db)
+
+	r.DateCreated = time.Now()
+	r.DateUpdated = time.Now()
+
 	if err != nil {
 		return err
 	}
@@ -135,26 +200,78 @@ func (rfw *RecordFormWrapper) CreateRecordForm() error {
 	}
 	db.RunInTransaction(func(tx *pg.Tx) error {
 		r.ID = uuid.New()
-		err := db.Insert(&r)
+		err := tx.Insert(&r)
 		if err != nil {
 			return err
 		}
 		s.RecordID = r.ID
-		err1 := db.Insert(&s)
+		err1 := tx.Insert(&s)
 		if err1 != nil {
 			return err1
 		}
-
 		var sp StockProduct
+
+		sp.DateCreated = time.Now()
+		sp.DateUpdated = time.Now()
 		for i := 0; i < len(rfw.Single.StockProducts); i++ {
 			sp = rfw.Single.StockProducts[i]
 			sp.ID = 0
 			sp.StockID = s.ID
-			err := db.Insert(&sp)
+			err := tx.Insert(&sp)
 			if err != nil {
 				return err
 			}
 		}
+		rfw.Single.Financial.RecordID = r.ID
+		rfw.Single.Financial.ID = uuid.New()
+		rfw.Single.Financial.DateCreated = time.Now()
+		err2 := tx.Insert(&rfw.Single.Financial)
+		if err1 != nil {
+			return err2
+		}
+
+		for i := 0; i < len(rfw.Single.Expenses); i++ {
+			rfw.Single.Expenses[i].FinancialID = rfw.Single.Financial.ID
+			rfw.Single.Record.DateCreated = time.Now()
+			err := tx.Insert(&rfw.Single.Expenses[i])
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	return nil
+}
+
+func (rfw *RecordFormWrapper) UpdateRecordForm() error {
+	db := pg.Connect(services.PgOptions())
+	db.AddQueryHook(services.DbLogger{})
+	db.RunInTransaction(func(tx *pg.Tx) error {
+		rfw.Single.Record.DateUpdated = time.Now()
+		err := db.Update(&rfw.Single.Record)
+		if err != nil {
+			return err
+		}
+		rfw.Single.Financial.DateCreated = time.Now()
+		err1 := db.Update(&rfw.Single.Financial)
+		if err1 != nil {
+			return err1
+		}
+		for i := 0; i < len(rfw.Single.Expenses); i++ {
+			rfw.Single.Expenses[i].DateUpdated = time.Now()
+			err2 := db.Update(&rfw.Single.Expenses[i])
+			if err2 != nil {
+				return err2
+			}
+		}
+		for i := 0; i < len(rfw.Single.StockProducts); i++ {
+			rfw.Single.StockProducts[i].DateUpdated = time.Now()
+			err3 := db.Update(&rfw.Single.StockProducts[i])
+			if err3 != nil {
+				return err3
+			}
+		}
+
 		return nil
 	})
 	return nil

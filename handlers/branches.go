@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/aiman-zaki/go_dz_http/models"
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/aiman-zaki/go_dz_http/wrappers"
 	"github.com/go-chi/chi"
 	"github.com/go-pg/pg/v9"
+	"github.com/google/uuid"
 )
 
 type BranchResources struct{}
@@ -140,14 +140,15 @@ func (rs BranchResources) Create(w http.ResponseWriter, r *http.Request) {
 
 func (rs BranchResources) Update(w http.ResponseWriter, r *http.Request) {
 	var bw models.BranchWrapper
+	var err error
 	wrappers.JSONDecodeWrapper(w, r, &bw.Single)
 	id := chi.URLParam(r, "id")
-	parsedID, parseErr := strconv.ParseInt(id, 0, 64)
-	if parseErr != nil {
-		http.Error(w, `{"message":"invalid id format"}`, 400)
+
+	bw.Single.ID, err = uuid.Parse(id)
+	if err != nil {
+		http.Error(w, err.Error(), 400)
 		return
 	}
-	bw.Single.ID = parsedID
 	bw.Update()
 	json.NewEncoder(w).Encode(bw.Update)
 }
@@ -164,19 +165,27 @@ func (rs BranchResources) Read(w http.ResponseWriter, r *http.Request) {
 
 func (rs BranchResources) ReadByID(w http.ResponseWriter, r *http.Request) {
 	var bw models.BranchWrapper
+	var err error
 	id := chi.URLParam(r, "id")
-	parseID, _ := strconv.ParseInt(id, 0, 64)
-	bw.Single.ID = parseID
+	bw.Single.ID, err = uuid.Parse(id)
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
 	bw.ReadById()
 	json.NewEncoder(w).Encode(bw.Single)
 }
 
 func (rs BranchResources) Delete(w http.ResponseWriter, r *http.Request) {
 	var bw models.BranchWrapper
+	var err error
 	id := chi.URLParam(r, "id")
-	parseID, _ := strconv.ParseInt(id, 0, 64)
-	bw.Single.ID = parseID
-	err := bw.Delete()
+	bw.Single.ID, err = uuid.Parse(id)
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+	err = bw.Delete()
 	if err != nil {
 		http.Error(w, err.Error(), 400)
 	}
