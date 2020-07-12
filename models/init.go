@@ -152,5 +152,5 @@ func InitDB() {
 		services.CreateTable(db, model)
 	}
 
-	runTestModel(len(models))
+	//\runTestModel(len(models))
 }

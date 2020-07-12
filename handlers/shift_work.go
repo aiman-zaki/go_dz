@@ -25,7 +25,7 @@ func (rs ShiftWorkResources) Routes() chi.Router {
 		r.Post("/", rs.Create)
 		r.Get("/dtlist/{total}", rs.DtList)
 		r.Get("/{id}", rs.ReadById)
-		r.Put("/{id}", rs.ReadById)
+		r.Put("/{id}", rs.Update)
 		r.Delete("/{id}", rs.Delete)
 
 	})
@@ -93,7 +93,27 @@ func (rs ShiftWorkResources) Delete(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
+	if err != nil {
+		return
+	}
 	err = sww.Delete()
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+	}
+	json.NewEncoder(w).Encode(&sww.Single)
+}
+
+func (rs ShiftWorkResources) Update(w http.ResponseWriter, r *http.Request) {
+	var sww models.ShiftWorkWrapper
+	var err error
+
+	sww.Single.ID, err = uuid.Parse(chi.URLParam(r, "id"))
+	err = wrappers.JSONDecodeWrapper(w, r, &sww.Single)
+
+	if err != nil {
+		return
+	}
+	err = sww.Update()
 	if err != nil {
 		http.Error(w, err.Error(), 400)
 	}

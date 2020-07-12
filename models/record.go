@@ -31,6 +31,7 @@ type RecordWrapper struct {
 	Page      int
 	PageLimit int
 	Total     int
+	Date      time.Time
 }
 
 type RecordForm struct {
@@ -86,6 +87,24 @@ func (rw *RecordWrapper) Read() error {
 		Relation("Branch").
 		Relation("ShiftWork").
 		Offset(rw.PageLimit * (rw.Page - 1)).
+		Limit(rw.PageLimit).Order(`date DESC`).SelectAndCount()
+	if err != nil {
+		return err
+	}
+	rw.Total = count
+	return nil
+}
+
+func (rw *RecordWrapper) ReadWithFilters() error {
+	db := pg.Connect(services.PgOptions())
+	db.AddQueryHook(services.DbLogger{})
+	defer db.Close()
+	count, err := db.Model(&rw.Array).
+		Relation("User").
+		Relation("Branch").
+		Relation("ShiftWork").
+		Offset(rw.PageLimit*(rw.Page-1)).
+		Where("date::Date = ?", rw.Date).
 		Limit(rw.PageLimit).Order(`date DESC`).SelectAndCount()
 	if err != nil {
 		return err

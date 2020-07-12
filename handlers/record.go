@@ -112,15 +112,29 @@ func (rs RecordResources) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rs RecordResources) Read(w http.ResponseWriter, r *http.Request) {
+	var rw models.RecordWrapper
 	page := r.URL.Query()["page"][0]
 	pageLimit := r.URL.Query()["pageLimit"][0]
-	var rw models.RecordWrapper
+	layout := "2006-01-02T15:04:05.000Z"
+	date := r.URL.Query()["date"]
 	rw.Page, _ = strconv.Atoi(page)
 	rw.PageLimit, _ = strconv.Atoi(pageLimit)
-	err := rw.Read()
-	if err != nil {
-		return
+
+	if len(date) > 0 {
+		t, err := time.Parse(layout, date[0])
+		if err != nil {
+			http.Error(w, err.Error(), 400)
+			return
+		}
+		rw.Date = t
+		rw.ReadWithFilters()
+	} else {
+		err := rw.Read()
+		if err != nil {
+			return
+		}
 	}
+
 	var rf ResponseFormat
 	rf.Response = rw.Array
 	rf.Total = rw.Total
