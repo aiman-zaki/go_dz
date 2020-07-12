@@ -91,8 +91,8 @@ func main() {
 	r.Mount("/swagger", http.StripPrefix("/swagger", fs))
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{},
-		AllowedMethods:   []string{"GET", "POST", "DELETE"},
+		AllowedOrigins:   []string{"kopisuam.me"},
+		AllowedMethods:   []string{"GET", "POST", "DELETE", "PUT"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		AllowCredentials: true,
 	})
