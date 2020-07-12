@@ -8,20 +8,25 @@ import (
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/aiman-zaki/go_dz_http/wrappers"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/jwtauth"
 	"github.com/go-pg/pg/v9"
+	"github.com/google/uuid"
 )
 
 type ShiftWorkResources struct{}
 
 func (rs ShiftWorkResources) Routes() chi.Router {
 	r := chi.NewRouter()
-	//r.Use(jwtauth.Verifier(jwtauth.New("HS256", []byte("secret"), nil)))
-	//r.Use(jwtauth.Authenticator)
+	r.Use(jwtauth.Verifier(jwtauth.New("HS256", []byte("secret"), nil)))
+	r.Use(jwtauth.Authenticator)
 	r.Route("/", func(r chi.Router) {
 
 		r.Get("/", rs.Read)
 		r.Post("/", rs.Create)
 		r.Get("/dtlist/{total}", rs.DtList)
+		r.Get("/{id}", rs.ReadById)
+		r.Put("/{id}", rs.ReadById)
+		r.Delete("/{id}", rs.Delete)
 
 	})
 	return r
@@ -62,4 +67,35 @@ func (rs ShiftWorkResources) Create(w http.ResponseWriter, r *http.Request) {
 	wrappers.JSONDecodeWrapper(w, r, &sww.Single)
 	sww.Create()
 	json.NewEncoder(w).Encode(sww.Single)
+}
+
+func (rs ShiftWorkResources) ReadById(w http.ResponseWriter, r *http.Request) {
+	var sww models.ShiftWorkWrapper
+	var err error
+
+	sww.Single.ID, err = uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		return
+	}
+	err = sww.ReadById()
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+	json.NewEncoder(w).Encode(sww.Single)
+}
+
+func (rs ShiftWorkResources) Delete(w http.ResponseWriter, r *http.Request) {
+	var sww models.ShiftWorkWrapper
+	var err error
+
+	sww.Single.ID, err = uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		return
+	}
+	err = sww.Delete()
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+	}
+	json.NewEncoder(w).Encode(&sww.Single)
 }

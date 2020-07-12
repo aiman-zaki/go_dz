@@ -42,6 +42,8 @@ type Branch struct {
 	DateCreated time.Time `json:"date_created" dt:"date_created"`
 	// the dateUpdated for the product
 	DateUpdated time.Time `json:"date_updated" dt:"date_updated"`
+
+	Show bool `json:"-" pg:"default:true"`
 }
 
 // swagger:parameters createBranch
@@ -112,7 +114,7 @@ func (bw *BranchWrapper) Create() error {
 func (bw *BranchWrapper) Read() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-	err := db.Model(&bw.Array).Select()
+	err := db.Model(&bw.Array).Where(`show = true`).Select()
 	if err != nil {
 		return err
 	}
@@ -132,8 +134,9 @@ func (bw *BranchWrapper) ReadById() error {
 func (bw *BranchWrapper) Update() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-
-	_, err := db.Model(&bw.Single).Where(`"branch"."id" = ?`, bw.Single.ID).Update()
+	bw.Single.Show = true
+	bw.Single.DateUpdated = time.Now()
+	err := db.Update(&bw.Single)
 	if err != nil {
 		return err
 	}
@@ -143,9 +146,12 @@ func (bw *BranchWrapper) Update() error {
 
 func (bw *BranchWrapper) Delete() error {
 	db := pg.Connect(services.PgOptions())
-
 	defer db.Close()
-
+	bw.Single.Show = false
+	_, err := db.Model(&bw.Single).Set("show = false").WherePK().Update()
+	if err != nil {
+		return err
+	}
 	return nil
 
 }

@@ -8,6 +8,7 @@ import (
 
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/go-pg/pg/v9"
+	"github.com/google/uuid"
 )
 
 // Role : model for the role existes in the system
@@ -15,12 +16,13 @@ import (
 type Role struct {
 	// id for role
 	// readOnly: true
-	ID int64 `json:"id" dt:"id"`
+	ID uuid.UUID `json:"id" dt:"id" pg:"type:uuid"`
 	// the role
 	Key         string    `json:"key" dt:"key"`
 	Text        string    `json:"text" dt:"text"`
 	DateCreated time.Time `json:"date_created"`
 	DateUpdated time.Time `json:"date_updated"`
+	Show        bool      `json:"-" pg:"default:true"`
 }
 
 type RoleWrapper struct {

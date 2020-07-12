@@ -47,7 +47,7 @@ type Product struct {
 	DateCreated time.Time `json:"date_created" dt:"date_created"`
 	// the dateUpdated for the product
 	DateUpdated time.Time `json:"date_updated" dt:"date_updated"`
-	Filtered    int       `json:"-" pg:"-"`
+	Show        bool      `json:"-" pg:"default:true"`
 }
 
 // swagger:parameters productById updateProduct getProducts
@@ -123,7 +123,7 @@ func (pw *ProductWrapper) Create() error {
 func (pw *ProductWrapper) Read() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-	err := db.Model(&pw.Array).Select()
+	err := db.Model(&pw.Array).Where("show = true").Select()
 	if err != nil {
 		return err
 
@@ -154,6 +154,9 @@ func (pw *ProductWrapper) ReadById() error {
 func (pw *ProductWrapper) Update() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
+	pw.Single.Show = true
+	pw.Single.DateUpdated = time.Now()
+
 	_, err := db.Model(&pw.Single).Where("id = ?", pw.Single.ID).Update()
 	if err != nil {
 		return err
@@ -165,7 +168,10 @@ func (pw *ProductWrapper) Update() error {
 func (pw *ProductWrapper) Delete() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-	_, err := db.Model(&pw.Single).Where("id = ?", pw.Single.ID).Delete()
+	pw.Single.Show = false
+	pw.Single.DateUpdated = time.Now()
+
+	_, err := db.Model(&pw.Single).Set("show = false").WherePK().Update()
 	if err != nil {
 		return err
 	}

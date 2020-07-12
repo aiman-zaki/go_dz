@@ -26,6 +26,7 @@ type Auth struct {
 	Email string `json:"email"`
 	// password for auth
 	// required: true
+	Username string `json:"username"`
 	Password string `json:"password"`
 	// accesstoken (jwt) expired (1 hours)
 	// readOnly: true
@@ -35,6 +36,8 @@ type Auth struct {
 	RefreshToken string `pg:"-" json:"refresh_token"`
 	// the role for this user
 	// not required during login
+	UserID      uuid.UUID `json:"user_id" pg:"type:uuid"`
+	User        User      `json:"user" pg:"fk:user_id"`
 	DateCreated time.Time `json:"date_created"`
 	DateUpdated time.Time `json:"date_updated"`
 }
@@ -45,9 +48,11 @@ type AuthWrapper struct {
 }
 
 func (aw *AuthWrapper) Register() error {
+	var err error
 	db := pg.Connect(services.PgOptions())
-	count, err := db.Model(&aw.Auth).
+	count, err := db.Model(&Auth{}).
 		Where("email = ?", aw.Auth.Email).
+		Where("username = ?", aw.Auth.Username).
 		Count()
 
 	if err != nil {
@@ -59,11 +64,14 @@ func (aw *AuthWrapper) Register() error {
 	}
 	hashed := Auth.HashAndSalt(Auth{}, []byte(aw.Auth.Password))
 	aw.Auth.Password = hashed
+	aw.Auth.DateCreated = time.Now()
+	aw.Auth.DateUpdated = time.Now()
 	aw.Auth.ID = uuid.New()
-	db.Insert(&aw.Auth)
-	aw.User.ID = aw.Auth.ID
-	db.Insert(&aw.User)
-	db.Model(&aw.Auth).Where("email = ?", aw.Auth.Email).Relation("Role").Select()
+	fmt.Println(aw)
+	err = db.Insert(&aw.Auth)
+	if err != nil {
+		return err
+	}
 	return nil
 
 }
@@ -72,30 +80,30 @@ func (aw *AuthWrapper) Login() error {
 	db := pg.Connect(services.PgOptions())
 	db.AddQueryHook(services.DbLogger{})
 	plainPassword := aw.Auth.Password
-	count, err := db.Model(&aw.Auth).
+	count, err := db.Model(&Auth{}).
 		Where("email = ?", aw.Auth.Email).
-		SelectAndCount()
+		Count()
 	if err != nil {
 		return err
 	}
 	if count > 0 {
-		fmt.Println(plainPassword)
-		fmt.Println(aw.Auth.Password)
-
-		valid := Auth.ComparePasswords(Auth{}, aw.Auth.Password, []byte(plainPassword))
-		fmt.Println(valid)
-		if valid {
-			err := db.Model(&aw.User).
-				Where(`"user"."id" = ?`, aw.Auth.ID).
-				Relation("Auth").
-				Select()
-			if err != nil {
-				return err
-			}
-			aw.GenerateToken()
-			return nil
+		err := db.Model(&aw.Auth).Where("email = ?", aw.Auth.Email).Select()
+		if err != nil {
+			return err
 		}
-		return errors.New("Invalid Credential")
+		valid := Auth.ComparePasswords(Auth{}, aw.Auth.Password, []byte(plainPassword))
+		if !valid {
+			return errors.New("Invalid Credential")
+		}
+		err = db.Model(&aw.Auth).
+			Relation("User").
+			Select()
+		aw.GenerateToken()
+		if err != nil {
+			return err
+		}
+	} else {
+		return errors.New("No Data")
 	}
 	return nil
 }

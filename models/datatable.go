@@ -55,7 +55,7 @@ func (dtlist *DtListWrapper) GenericQuery(selectedColumn []string, where []strin
 		query = query + ` WHERE ` + strings.Join(where, " AND ")
 		filteredCount = filteredCount + ` WHERE ` + strings.Join(where, " AND ")
 	}
-	query = query + ` GROUP BY "table1"."id" ORDER BY ` + dtlist.Array[dtlr.Order.Column].Data + ` ` + strings.ToUpper(dtlr.Order.Dir) + ` LIMIT ? OFFSET ? `
+	query = query + `GROUP BY "table1"."id" ORDER BY ` + dtlist.Array[dtlr.Order.Column].Data + ` ` + strings.ToUpper(dtlr.Order.Dir) + ` LIMIT ? OFFSET ? `
 
 	return query, filteredCount
 }
@@ -92,6 +92,7 @@ func (dtlist *DtListWrapper) IterateValues(v reflect.Value, dtlr *DtListRequest)
 		}
 
 	}
+	where = append(where, ` show = true `)
 	values = append(values, whereValues...)
 	values = append(values, dtlr.Length)
 	values = append(values, dtlr.Start)

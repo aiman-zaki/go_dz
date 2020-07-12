@@ -9,6 +9,7 @@ import (
 	"github.com/aiman-zaki/go_dz_http/models"
 	"github.com/aiman-zaki/go_dz_http/wrappers"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/jwtauth"
 	"github.com/google/uuid"
 )
 
@@ -16,8 +17,8 @@ type ProductResources struct{}
 
 func (rs ProductResources) Routes() chi.Router {
 	r := chi.NewRouter()
-	//r.Use(jwtauth.Verifier(jwtauth.New("HS256", []byte("secret"), nil)))
-	//r.Use(jwtauth.Authenticator)
+	r.Use(jwtauth.Verifier(jwtauth.New("HS256", []byte("secret"), nil)))
+	r.Use(jwtauth.Authenticator)
 	r.Route("/", func(r chi.Router) {
 		// swagger:route GET /products Products getProducts
 		//
@@ -153,7 +154,11 @@ func (res ProductResources) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	wrappers.JSONDecodeWrapper(w, r, &pw.Single)
-	pw.Update()
+	err = pw.Update()
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
 	json.NewEncoder(w).Encode(pw.Single)
 
 }

@@ -144,7 +144,7 @@ func (rw *RecordWrapper) ReadWithDateBranchShift() error {
 	defer db.Close()
 	err := db.Model(&rw.Single).Where(`"record"."date"::DATE = ?`, rw.Single.Date).Where(`"record"."branch_id" = ?`, rw.Single.BranchID).Where(`"record"."shift_work_id" = ?`, rw.Single.ShiftWorkID).First()
 	if err != nil {
-		return err
+		return nil
 	}
 	return nil
 }

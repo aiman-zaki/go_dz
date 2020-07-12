@@ -78,7 +78,7 @@ func (rs AuthResources) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 400)
 		return
 	}
-	json.NewEncoder(w).Encode(aw.User)
+	json.NewEncoder(w).Encode(aw.Auth)
 }
 
 func (rs AuthResources) Register(w http.ResponseWriter, r *http.Request) {

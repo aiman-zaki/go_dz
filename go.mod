@@ -10,4 +10,5 @@ require (
 	github.com/go-chi/jwtauth v4.0.4+incompatible
 	github.com/go-pg/pg/v9 v9.1.6
 	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9
+	github.com/google/uuid v1.1.1
 )

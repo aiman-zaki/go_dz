@@ -9,6 +9,7 @@ import (
 	"github.com/aiman-zaki/go_dz_http/services"
 	"github.com/aiman-zaki/go_dz_http/wrappers"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/jwtauth"
 	"github.com/go-pg/pg/v9"
 	"github.com/google/uuid"
 )
@@ -17,6 +18,8 @@ type BranchResources struct{}
 
 func (rs BranchResources) Routes() chi.Router {
 	r := chi.NewRouter()
+	r.Use(jwtauth.Verifier(jwtauth.New("HS256", []byte("secret"), nil)))
+	r.Use(jwtauth.Authenticator)
 	r.Route("/", func(r chi.Router) {
 		// swagger:route GET /branches Branches getBranches
 		//
@@ -149,8 +152,12 @@ func (rs BranchResources) Update(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 400)
 		return
 	}
-	bw.Update()
-	json.NewEncoder(w).Encode(bw.Update)
+	err = bw.Update()
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+	json.NewEncoder(w).Encode(bw.Single)
 }
 
 func (rs BranchResources) Read(w http.ResponseWriter, r *http.Request) {

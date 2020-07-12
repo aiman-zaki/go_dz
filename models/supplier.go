@@ -51,6 +51,7 @@ type Supplier struct {
 	PhoneNo     string    `json:"phone_no" dt:"phone_no"`
 	DateCreated time.Time `json:"date_created"`
 	DateUpdated time.Time `json:"date_updated"`
+	Show        bool      `json:"-" pg:"default:true"`
 }
 
 // swagger:parameters createSupplier
@@ -120,9 +121,21 @@ func (sw *SupplierWrapper) Read() error {
 	return nil
 }
 
+func (sw *SupplierWrapper) ReadById() error {
+	db := pg.Connect(services.PgOptions())
+	defer db.Close()
+	err := db.Model(&sw.Single).WherePK().Select()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (sw *SupplierWrapper) Update() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
+	sw.Single.Show = true
+	sw.Single.DateUpdated = time.Now()
 	_, err := db.Model(&sw.Single).Where("id = ?", sw.Single.ID).Update()
 	if err != nil {
 		return err
@@ -130,10 +143,11 @@ func (sw *SupplierWrapper) Update() error {
 	return nil
 }
 
-func (pw *SupplierWrapper) Delete() error {
+func (sw *SupplierWrapper) Delete() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-	_, err := db.Model(&pw.Single).Where("id = ?", pw.Single.ID).Delete()
+	sw.Single.DateUpdated = time.Now()
+	_, err := db.Model(&sw.Single).Set("show = false").WherePK().Update()
 	if err != nil {
 		return err
 	}

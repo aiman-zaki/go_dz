@@ -15,12 +15,13 @@ type ShiftWork struct {
 	Shift       string    `json:"shift" dt:"shift" `
 	DateCreated time.Time `json:"date_created"  dt:"date_created" `
 	DateUpdated time.Time `json:"date_updated"  dt:"date_updated" `
-	Filtered    int       `json:"-" pg:"-"`
+	Show        bool      `json:"-" pg:"default:true"`
 }
 
 type ShiftWorkWrapper struct {
-	Single ShiftWork
-	Array  []ShiftWork
+	Single   ShiftWork
+	Array    []ShiftWork
+	Filtered int
 }
 
 func (ew *ShiftWorkWrapper) DtList(dtlist DtListWrapper, dtlr *DtListRequest) (error, DtListResponse) {
@@ -36,7 +37,7 @@ func (ew *ShiftWorkWrapper) DtList(dtlist DtListWrapper, dtlr *DtListRequest) (e
 	_, err3 := db.Query(&ew.Array,
 		query, values...)
 
-	_, err4 := db.Query(&ew.Single.Filtered, filteredCount, whereValues)
+	_, err4 := db.Query(&ew.Filtered, filteredCount, whereValues)
 	if err4 != nil {
 		return err4, DtListResponse{}
 	}
@@ -54,7 +55,7 @@ func (ew *ShiftWorkWrapper) DtList(dtlist DtListWrapper, dtlr *DtListRequest) (e
 	dtlistResponse.RecordsTotal = int64(count)
 	dtlistResponse.Data = ew.Array
 	dtlistResponse.Draw = 1
-	dtlistResponse.RecordsFiltered = int64((ew.Single.Filtered))
+	dtlistResponse.RecordsFiltered = int64((ew.Filtered))
 	return nil, dtlistResponse
 }
 
@@ -73,6 +74,39 @@ func (ssw *ShiftWorkWrapper) Read() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
 	err := db.Model(&ssw.Array).Select()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ssw *ShiftWorkWrapper) ReadById() error {
+	db := pg.Connect(services.PgOptions())
+	defer db.Close()
+	err := db.Model(&ssw.Single).WherePK().Select()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ssw *ShiftWorkWrapper) Update() error {
+	db := pg.Connect(services.PgOptions())
+	defer db.Close()
+	ssw.Single.DateUpdated = time.Now()
+	ssw.Single.Show = true
+	_, err := db.Model(&ssw.Single).WherePK().Update()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ssw *ShiftWorkWrapper) Delete() error {
+	db := pg.Connect(services.PgOptions())
+	defer db.Close()
+	ssw.Single.DateUpdated = time.Now()
+	_, err := db.Model(&ssw.Single).Set(`show = false`).WherePK().Update()
 	if err != nil {
 		return err
 	}

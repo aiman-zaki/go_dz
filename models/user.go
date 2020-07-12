@@ -34,9 +34,11 @@ type User struct {
 	// the dateUpdated for this user
 	DateUpdated time.Time `json:"date_updated" pg:"default:now()"  dt:"date_updated"`
 
-	RoleID int64 `json:"role_id"`
+	RoleID uuid.UUID `json:"role_id" pg:"type:uuid"`
 	// swagger:ignore
 	Role *Role `json:"role" pg:"fk:role_id"`
+
+	Show bool `json:"-" pg:"default:true"`
 }
 
 type UserWrapper struct {
@@ -107,13 +109,31 @@ func (uw *UserWrapper) Read() error {
 func (uw *UserWrapper) Create() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
+	uw.Single.ID = uuid.New()
 	err := db.Insert(&uw.Single)
-
 	if err != nil {
 		return err
 	}
+	return nil
+}
 
-	err2 := db.Model(&uw.Array).Relation("Role").Where(`"user"."id" = ?`, uw.Single.ID).Select()
+func (uw *UserWrapper) Update() error {
+	db := pg.Connect(services.PgOptions())
+	defer db.Close()
+	uw.Single.DateUpdated = time.Now()
+	uw.Single.Show = true
+	_, err2 := db.Model(&uw.Single).WherePK().Update()
+	if err2 != nil {
+		return err2
+	}
+	return nil
+}
+
+func (uw *UserWrapper) Delete() error {
+	db := pg.Connect(services.PgOptions())
+	defer db.Close()
+	uw.Single.DateUpdated = time.Now()
+	_, err2 := db.Model(&uw.Single).Set(`show = false`).WherePK().Update()
 	if err2 != nil {
 		return err2
 	}

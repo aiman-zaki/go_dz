@@ -10,6 +10,7 @@ import (
 	"github.com/aiman-zaki/go_dz_http/models"
 	"github.com/aiman-zaki/go_dz_http/wrappers"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/jwtauth"
 	"github.com/google/uuid"
 )
 
@@ -17,6 +18,8 @@ type RecordResources struct{}
 
 func (rr RecordResources) Routes() chi.Router {
 	r := chi.NewRouter()
+	r.Use(jwtauth.Verifier(jwtauth.New("HS256", []byte("secret"), nil)))
+	r.Use(jwtauth.Authenticator)
 	r.Route("/", func(r chi.Router) {
 		r.Get("/", rr.Read)
 		r.Post("/", rr.CreateWithTranscation)

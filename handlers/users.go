@@ -7,6 +7,7 @@ import (
 	"github.com/aiman-zaki/go_dz_http/models"
 	"github.com/aiman-zaki/go_dz_http/wrappers"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/jwtauth"
 	"github.com/google/uuid"
 )
 
@@ -14,6 +15,8 @@ type UserResources struct{}
 
 func (rs UserResources) Routes() chi.Router {
 	r := chi.NewRouter()
+	r.Use(jwtauth.Verifier(jwtauth.New("HS256", []byte("secret"), nil)))
+	r.Use(jwtauth.Authenticator)
 	r.Route("/", func(r chi.Router) {
 		// swagger:route GET /users Users getUsers
 		//
@@ -53,6 +56,7 @@ func (rs UserResources) Routes() chi.Router {
 		r.Get("/dtlist/{total}", rs.DtList)
 		r.Put("/{id}", rs.Update)
 		r.Post("/", rs.Create)
+		r.Delete("/{id}", rs.Delete)
 	})
 	return r
 }
@@ -138,5 +142,34 @@ func (rs UserResources) Read(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rs UserResources) Update(w http.ResponseWriter, r *http.Request) {
+	var pw models.UserWrapper
+	var err error
 
+	pw.Single.ID, err = uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+	wrappers.JSONDecodeWrapper(w, r, &pw.Single)
+	err = pw.Update()
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+	json.NewEncoder(w).Encode(pw.Single)
+}
+
+func (rs UserResources) Delete(w http.ResponseWriter, r *http.Request) {
+	var pw models.UserWrapper
+	var err error
+
+	pw.Single.ID, err = uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		return
+	}
+	err = pw.Delete()
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+	}
+	json.NewEncoder(w).Encode(&pw.Single)
 }

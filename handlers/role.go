@@ -8,6 +8,8 @@ import (
 	"github.com/aiman-zaki/go_dz_http/models"
 	"github.com/aiman-zaki/go_dz_http/wrappers"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/jwtauth"
+	"github.com/google/uuid"
 )
 
 type RoleResources struct {
@@ -21,7 +23,8 @@ type RoleWrapper struct {
 
 func (rs RoleResources) Routes() chi.Router {
 	r := chi.NewRouter()
-
+	r.Use(jwtauth.Verifier(jwtauth.New("HS256", []byte("secret"), nil)))
+	r.Use(jwtauth.Authenticator)
 	r.Route("/", func(r chi.Router) {
 		// swagger:route POST /role Roles createRole
 		//
@@ -119,9 +122,17 @@ func (rs RoleResources) Read(w http.ResponseWriter, r *http.Request) {
 
 func (rs RoleResources) ReadByID(w http.ResponseWriter, r *http.Request) {
 	var pw models.RoleWrapper
-	pw.Single.ID = IdAndConvert(r, "id")
-
-	pw.ReadById()
+	var err error
+	pw.Single.ID, err = uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
+	err = pw.ReadById()
+	if err != nil {
+		http.Error(w, err.Error(), 400)
+		return
+	}
 	json.NewEncoder(w).Encode(pw.Single)
 }
 func (rs RoleResources) Update(w http.ResponseWriter, r *http.Request) {
