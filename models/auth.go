@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"time"
 
@@ -67,7 +66,6 @@ func (aw *AuthWrapper) Register() error {
 	aw.Auth.DateCreated = time.Now()
 	aw.Auth.DateUpdated = time.Now()
 	aw.Auth.ID = uuid.New()
-	fmt.Println(aw)
 	err = db.Insert(&aw.Auth)
 	if err != nil {
 		return err
@@ -108,12 +106,30 @@ func (aw *AuthWrapper) Login() error {
 	return nil
 }
 
+func TokenSetting() *jwtauth.JWTAuth {
+	return jwtauth.New("HS256", []byte("NcRfUjXn2r5u8x/A?D(G+KbPdSgVkYp3"), nil)
+}
+
 // GenerateToken : Generate JWT Token
 func (aw *AuthWrapper) GenerateToken() {
-	tokenAuth := jwtauth.New("HS256", []byte("secret"), nil)
-	_, tokenString, _ := tokenAuth.Encode(jwt.MapClaims{"user": aw.Auth.Email})
+	claims := jwt.MapClaims{"user": aw.Auth.Email}
+	tokenAuth := TokenSetting()
+
+	duration, err := time.ParseDuration("15m")
+	if err != nil {
+		return
+	}
+	jwtauth.SetExpiryIn(claims, duration)
+	_, tokenString, _ := tokenAuth.Encode(claims)
+	duration, err = time.ParseDuration("24h")
+	if err != nil {
+		return
+	}
+	jwtauth.SetExpiryIn(claims, duration)
+	_, refreshToken, _ := tokenAuth.Encode(claims)
+
 	aw.Auth.AcessToken = tokenString
-	fmt.Println(aw.Auth.AcessToken)
+	aw.Auth.RefreshToken = refreshToken
 }
 
 // HashAndSalt : generate hashed password
@@ -143,4 +159,8 @@ func (auth Auth) ComparePasswords(hashedPwd string, plainPwd []byte) bool {
 	}
 
 	return true
+}
+
+func (auth *AuthWrapper) RefreshToken() error {
+	return nil
 }

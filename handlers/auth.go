@@ -92,3 +92,12 @@ func (rs AuthResources) Register(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(aw.Auth)
 
 }
+
+func (rs AuthResources) RefreshToken(w http.ResponseWriter, r *http.Request) {
+	var aw models.AuthWrapper
+	wrappers.JSONDecodeWrapper(w, r, &aw.Auth)
+	err := aw.RefreshToken()
+	if err != nil {
+		return
+	}
+}
