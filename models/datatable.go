@@ -46,6 +46,10 @@ type DtListWrapper struct {
 	Array []DtList
 }
 
+/*
+  author : aiman0zaki@gmail.com
+*/
+
 func (dtlist *DtListWrapper) GenericQuery(selectedColumn []string, where []string, dtlr *DtListRequest, tableName string) (string, string) {
 	var query string
 	var filteredCount string
@@ -64,7 +68,6 @@ func (dtlist *DtListWrapper) CheckIfFieldInStruct(v reflect.Value, dtlistData st
 	exist := false
 	notExistColumn := ""
 	for i := 0; i < v.NumField(); i++ {
-		fmt.Println((v.Type().Field(i).Tag.Get("dt")))
 		if strings.ToLower(dtlistData) == (v.Type().Field(i).Tag.Get("dt")) {
 			exist = true
 		} else {
@@ -110,10 +113,8 @@ func (dtlist *DtListWrapper) Create(r *http.Request) (DtListRequest, error) {
 	length, _ := strconv.Atoi(r.URL.Query()["length"][0])
 	for i := 0; i < size; i++ {
 		columnString := "columns[" + strconv.Itoa(i) + "]"
-		searchable := r.URL.Query()[columnString+".searchable"][0]
-		orderable := r.URL.Query()[columnString+".orderable"][0]
-		fmt.Println(searchable)
-		fmt.Println(orderable)
+		//searchable := r.URL.Query()[columnString+".searchable"][0]
+		//orderable := r.URL.Query()[columnString+".orderable"][0]
 		dt := DtList{
 			Data:       r.URL.Query()[columnString+".data"][0],
 			Name:       r.URL.Query()[columnString+".name"][0],

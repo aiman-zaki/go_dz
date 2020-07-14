@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -18,7 +17,8 @@ type RecordResources struct{}
 
 func (rr RecordResources) Routes() chi.Router {
 	r := chi.NewRouter()
-	r.Use(jwtauth.Verifier(jwtauth.New("HS256", []byte("secret"), nil)))
+	r.Use(jwtauth.Verifier(models.TokenSetting()))
+
 	r.Use(jwtauth.Authenticator)
 	r.Route("/", func(r chi.Router) {
 		r.Get("/", rr.Read)
@@ -34,7 +34,6 @@ func (rr RecordResources) Routes() chi.Router {
 func (rs RecordResources) CreateWithTranscation(w http.ResponseWriter, r *http.Request) {
 	var rfw models.RecordFormWrapper
 	err := wrappers.JSONDecodeWrapper(w, r, &rfw.Single)
-	fmt.Println(err)
 	if err != nil {
 		return
 	}

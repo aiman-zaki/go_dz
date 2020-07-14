@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"reflect"
 	"time"
 
@@ -50,7 +49,6 @@ func (ew *RoleWrapper) DtList(dtlist DtListWrapper, dtlr *DtListRequest) (error,
 	}
 
 	if err3 != nil {
-		fmt.Println(err3)
 		return err3, DtListResponse{}
 	}
 
@@ -89,8 +87,7 @@ func (rw *RoleWrapper) Read() error {
 	defer db.Close()
 	err := db.Model(&rw.Array).Select()
 	if err != nil {
-		fmt.Println(err)
-
+		return err
 	}
 	return nil
 }
@@ -111,7 +108,7 @@ func (rw *RoleWrapper) Update() error {
 	defer db.Close()
 	err := db.Update(&rw.Single)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 	return nil
 }

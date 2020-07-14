@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"reflect"
 	"time"
 
@@ -66,7 +65,6 @@ func (ew *UserWrapper) DtList(dtlist DtListWrapper, dtlr *DtListRequest) (error,
 	}
 
 	if err3 != nil {
-		fmt.Println(err3)
 		return err3, DtListResponse{}
 	}
 

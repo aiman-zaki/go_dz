@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/aiman-zaki/go_dz_http/models"
@@ -18,7 +17,7 @@ type BranchResources struct{}
 
 func (rs BranchResources) Routes() chi.Router {
 	r := chi.NewRouter()
-	r.Use(jwtauth.Verifier(jwtauth.New("HS256", []byte("secret"), nil)))
+	r.Use(jwtauth.Verifier(models.TokenSetting()))
 	r.Use(jwtauth.Authenticator)
 	r.Route("/", func(r chi.Router) {
 		// swagger:route GET /branches Branches getBranches
@@ -126,7 +125,7 @@ func (rs BranchResources) CountBranchExist(db *pg.DB, id int64, m models.Branch)
 
 	count, err := db.Model(&m).Where("id = ?", id).SelectAndCount()
 	if err != nil {
-		fmt.Println(err)
+
 	}
 	return count
 }

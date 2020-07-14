@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"reflect"
 	"time"
 
@@ -84,7 +83,6 @@ func (ew *ProductWrapper) DtList(dtlist DtListWrapper, dtlr *DtListRequest) (err
 		query, values...)
 
 	if err3 != nil {
-		fmt.Println(err3.Error())
 		return err3, DtListResponse{}
 	}
 	_, err4 := db.Query(&ew.Filtered, filteredCount, whereValues...)
@@ -93,7 +91,6 @@ func (ew *ProductWrapper) DtList(dtlist DtListWrapper, dtlr *DtListRequest) (err
 	}
 
 	if err3 != nil {
-		fmt.Println(err3)
 		return err3, DtListResponse{}
 	}
 

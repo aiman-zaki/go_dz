@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -17,7 +16,7 @@ type ProductResources struct{}
 
 func (rs ProductResources) Routes() chi.Router {
 	r := chi.NewRouter()
-	r.Use(jwtauth.Verifier(jwtauth.New("HS256", []byte("secret"), nil)))
+	r.Use(jwtauth.Verifier(models.TokenSetting()))
 	r.Use(jwtauth.Authenticator)
 	r.Route("/", func(r chi.Router) {
 		// swagger:route GET /products Products getProducts
@@ -135,7 +134,6 @@ func (rs ProductResources) DtList(w http.ResponseWriter, r *http.Request) {
 func (rs ProductResources) Create(w http.ResponseWriter, r *http.Request) {
 	var pw models.ProductWrapper
 	wrappers.JSONDecodeWrapper(w, r, &pw.Single)
-	fmt.Println(pw.Single)
 	err := pw.Create()
 	if err != nil {
 		http.Error(w, err.Error(), 400)
@@ -200,13 +198,11 @@ func (rs ProductResources) Read(w http.ResponseWriter, r *http.Request) {
 	currentPage := r.URL.Query()["currentPage"]
 
 	if perPage != nil && currentPage != nil {
-		fmt.Println("With Limit")
 		perPageInt, _ := strconv.Atoi(perPage[0])
 		currentPageInt, _ := strconv.Atoi(currentPage[0])
 		getProductsWithLimit(w, perPageInt, currentPageInt)
 		return
 	}
-	fmt.Println("No Limit")
 	var pw models.ProductWrapper
 	pw.Read()
 	json.NewEncoder(w).Encode(pw.Array)

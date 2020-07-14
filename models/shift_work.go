@@ -73,7 +73,7 @@ func (ssw *ShiftWorkWrapper) Create() error {
 func (ssw *ShiftWorkWrapper) Read() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-	err := db.Model(&ssw.Array).Select()
+	err := db.Model(&ssw.Array).Where("show = true").Select()
 	if err != nil {
 		return err
 	}

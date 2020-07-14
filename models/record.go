@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/aiman-zaki/go_dz_http/services"
@@ -47,9 +46,7 @@ type RecordFormWrapper struct {
 
 func (rw *RecordWrapper) IfDataExist(db *pg.DB) (bool, error) {
 	count, err := db.Model(&Record{}).Where("date = ?", rw.Single.Date).Where("branch_id = ?", rw.Single.BranchID).Where("shift_work_id = ?", rw.Single.ShiftWorkID).Count()
-	fmt.Println(count)
 	if err != nil {
-		fmt.Println(err.Error())
 		return false, err
 	}
 	if count > 0 {
@@ -171,7 +168,6 @@ func (rw *RecordWrapper) ReadWithDateBranchShift() error {
 func (rw *RecordFormWrapper) IfDataExist(db *pg.DB) (bool, error) {
 	count, err := db.Model(&Record{}).Where("date::DATE = ?", rw.Single.Record.Date).Where("branch_id = ?", rw.Single.Record.BranchID).Where("shift_work_id = ?", rw.Single.Record.ShiftWorkID).Count()
 	if err != nil {
-		fmt.Println(err.Error())
 		return false, err
 	}
 	if count > 0 {

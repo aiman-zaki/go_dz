@@ -23,7 +23,8 @@ type RoleWrapper struct {
 
 func (rs RoleResources) Routes() chi.Router {
 	r := chi.NewRouter()
-	r.Use(jwtauth.Verifier(jwtauth.New("HS256", []byte("secret"), nil)))
+	r.Use(jwtauth.Verifier(models.TokenSetting()))
+
 	r.Use(jwtauth.Authenticator)
 	r.Route("/", func(r chi.Router) {
 		// swagger:route POST /role Roles createRole
