@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/aiman-zaki/go_dz_http/services"
@@ -13,15 +14,18 @@ type Record struct {
 	ID       uuid.UUID `json:"id" pg:"type:uuid"`
 	Date     time.Time `json:"date"`
 	BranchID uuid.UUID `json:"branch_id" pg:"type:uuid"`
-	Branch   Branch    `pg:"fk:branch_id" json:"branch"`
+	Branch   *Branch   `pg:"fk:branch_id" json:"branch"`
 
-	ShiftWorkID uuid.UUID `json:"shift_work_id" pg:"type:uuid"`
-	ShiftWork   ShiftWork `pg:"fk:shift_work_id" json:"shift_work"`
+	ShiftWorkID uuid.UUID  `json:"shift_work_id" pg:"type:uuid"`
+	ShiftWork   *ShiftWork `pg:"fk:shift_work_id" json:"shift_work"`
 
 	UserID      uuid.UUID `json:"user_id" pg:"type:uuid"`
-	User        User      `pg:"fk:user_id" json:"user"`
+	User        *User     `pg:"fk:user_id" json:"user"`
 	DateCreated time.Time `json:"date_created"`
 	DateUpdated time.Time `json:"date_updated"`
+
+	Financial *Financial `json:"financial" pg:"-"`
+	Expenses  float64    `json:"expenses" pg:"-"`
 }
 
 type RecordWrapper struct {
@@ -80,12 +84,17 @@ func (rw *RecordWrapper) Read() error {
 	db.AddQueryHook(services.DbLogger{})
 	defer db.Close()
 	count, err := db.Model(&rw.Array).
+		ColumnExpr(`"record"."id" AS "record__id", "record"."date" AS "record__date", "record"."date_updated" AS "record__date_updated" , "record"."date_created" AS "record__date_created"`).
+		ColumnExpr(`"financial"."id" AS "financial__id", "financial"."record_id" AS "financial__record_id" ,"financial"."collection" AS "financial__collection"`).
+		ColumnExpr(`(SELECT SUM("expense"."amount") as "expenses" FROM expenses as "expense" WHERE "expense"."financial_id" = "financial"."id" GROUP BY "expense"."financial_id" )`).
 		Relation("User").
 		Relation("Branch").
 		Relation("ShiftWork").
+		Join(`LEFT JOIN financials AS "financial" ON "financial"."record_id" = "record"."id"`).
 		Offset(rw.PageLimit * (rw.Page - 1)).
 		Limit(rw.PageLimit).Order(`date DESC`).SelectAndCount()
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 	rw.Total = count
@@ -97,11 +106,15 @@ func (rw *RecordWrapper) ReadWithFilters() error {
 	db.AddQueryHook(services.DbLogger{})
 	defer db.Close()
 	count, err := db.Model(&rw.Array).
+		ColumnExpr(`"record"."id" AS "record__id", "record"."date" AS "record__date", "record"."date_updated" AS "record__date_updated" , "record"."date_created" AS "record__date_created"`).
+		ColumnExpr(`"financial"."id" AS "financial__id", "financial"."record_id" AS "financial__record_id" ,"financial"."collection" AS "financial__collection"`).
+		ColumnExpr(`(SELECT SUM("expense"."amount") as "expenses" FROM expenses as "expense" WHERE "expense"."financial_id" = "financial"."id" GROUP BY "expense"."financial_id" )`).
 		Relation("User").
 		Relation("Branch").
 		Relation("ShiftWork").
 		Offset(rw.PageLimit*(rw.Page-1)).
 		Where("date::Date = ?", rw.Date).
+		Join(`LEFT JOIN financials AS "financial" ON "financial"."record_id" = "record"."id"`).
 		Limit(rw.PageLimit).Order(`date DESC`).SelectAndCount()
 	if err != nil {
 		return err
@@ -274,6 +287,13 @@ func (rfw *RecordFormWrapper) UpdateRecordForm() error {
 		}
 		for i := 0; i < len(rfw.Single.Expenses); i++ {
 			rfw.Single.Expenses[i].DateUpdated = time.Now()
+			if rfw.Single.Expenses[i].ID == 0 {
+				rfw.Single.Expenses[i].FinancialID = rfw.Single.Financial.ID
+				err2 := db.Insert(&rfw.Single.Expenses[i])
+				if err2 != nil {
+					return err2
+				}
+			}
 			err2 := db.Update(&rfw.Single.Expenses[i])
 			if err2 != nil {
 				return err2
