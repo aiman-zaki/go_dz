@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -162,5 +163,14 @@ func (auth Auth) ComparePasswords(hashedPwd string, plainPwd []byte) bool {
 }
 
 func (auth *AuthWrapper) RefreshToken() error {
+	tokenAuth := TokenSetting()
+	t, err := tokenAuth.Decode(auth.Auth.RefreshToken)
+	if err != nil {
+		return err
+	}
+	email := t.Claims.(jwt.MapClaims)["user"]
+	fmt.Println()
+	auth.Auth.Email = email.(string)
+	auth.GenerateToken()
 	return nil
 }

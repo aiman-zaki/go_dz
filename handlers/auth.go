@@ -43,6 +43,7 @@ func (rs AuthResources) Routes() chi.Router {
 		//	   200: validCredential
 		//	   422: dataAlreadyExisted
 		r.Post("/register", rs.Register)
+		r.Get("/refresh-token/{refreshToken}", rs.RefreshToken)
 	})
 
 	return r
@@ -94,10 +95,15 @@ func (rs AuthResources) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rs AuthResources) RefreshToken(w http.ResponseWriter, r *http.Request) {
+	refreshToken := chi.URLParam(r, "refreshToken")
+
 	var aw models.AuthWrapper
-	wrappers.JSONDecodeWrapper(w, r, &aw.Auth)
+	//wrappers.JSONDecodeWrapper(w, r, &aw.Auth)
+	aw.Auth.RefreshToken = refreshToken
 	err := aw.RefreshToken()
 	if err != nil {
 		return
 	}
+	json.NewEncoder(w).Encode(aw.Auth.AcessToken)
+
 }
