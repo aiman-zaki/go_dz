@@ -108,7 +108,7 @@ func (rw *RecordWrapper) ReadWithFilters() error {
 	count, err := db.Model(&rw.Array).
 		ColumnExpr(`"record"."id" AS "record__id", "record"."date" AS "record__date", "record"."date_updated" AS "record__date_updated" , "record"."date_created" AS "record__date_created"`).
 		ColumnExpr(`"financial"."id" AS "financial__id", "financial"."record_id" AS "financial__record_id" ,"financial"."collection" AS "financial__collection"`).
-		ColumnExpr(`(SELECT SUM("expense"."amount") as "expenses" FROM expenses as "expense" WHERE "expense"."financial_id" = "financial"."id" GROUP BY "expense"."financial_id" )`).
+		ColumnExpr(`(SELECT COALESCE(SUM("expense"."amount"),0) as "expenses" FROM expenses as "expense" WHERE "expense"."financial_id" = "financial"."id" GROUP BY "expense"."financial_id" )`).
 		Relation("User").
 		Relation("Branch").
 		Relation("ShiftWork").
