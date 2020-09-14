@@ -13,8 +13,8 @@ import (
 type ShiftWork struct {
 	ID          uuid.UUID `json:"id" dt:"id" pg:"type:uuid"`
 	Shift       string    `json:"shift" dt:"shift" `
-	DateCreated time.Time `json:"date_created"  dt:"date_created" `
-	DateUpdated time.Time `json:"date_updated"  dt:"date_updated" `
+	DateCreated time.Time `json:"date_created"  dt:"date_created" pg:"default:CURRENT_TIMESTAMP"`
+	DateUpdated time.Time `json:"date_updated"  dt:"date_updated" pg:"default:CURRENT_TIMESTAMP"`
 	Show        bool      `json:"-" pg:"default:true"`
 }
 

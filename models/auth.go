@@ -38,8 +38,8 @@ type Auth struct {
 	// not required during login
 	UserID      uuid.UUID `json:"user_id" pg:"type:uuid"`
 	User        User      `json:"user" pg:"fk:user_id"`
-	DateCreated time.Time `json:"date_created"`
-	DateUpdated time.Time `json:"date_updated"`
+	DateCreated time.Time `json:"date_created" pg:"default:CURRENT_TIMESTAMP"`
+	DateUpdated time.Time `json:"date_updated" pg:"default:CURRENT_TIMESTAMP"`
 }
 
 type AuthWrapper struct {

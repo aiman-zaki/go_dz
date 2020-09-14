@@ -35,8 +35,8 @@ type Stock struct {
 	RecordID uuid.UUID `json:"record_id" pg:"type:uuid"`
 
 	Record      Record    `json:"record" pg:"fk:record_id"`
-	DateCreated time.Time `json:"date_created"`
-	DateUpdated time.Time `json:"date_updated"`
+	DateCreated time.Time `json:"date_created" pg:"default:CURRENT_TIMESTAMP"`
+	DateUpdated time.Time `json:"date_updated" pg:"default:CURRENT_TIMESTAMP"`
 }
 
 type StockWrapper struct {

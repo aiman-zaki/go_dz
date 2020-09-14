@@ -20,8 +20,8 @@ type StockProduct struct {
 
 	StockIn      int64     `json:"stock_in"`
 	StockBalance int64     `json:"stock_balance"`
-	DateCreated  time.Time `json:"date_created"`
-	DateUpdated  time.Time `json:"date_updated"`
+	DateCreated  time.Time `json:"date_created" pg:"default:CURRENT_TIMESTAMP"`
+	DateUpdated  time.Time `json:"date_updated" pg:"default:CURRENT_TIMESTAMP"`
 }
 
 type StockProductWrapper struct {

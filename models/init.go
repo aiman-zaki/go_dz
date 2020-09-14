@@ -55,45 +55,53 @@ func runTestModel(l int) {
 	roleWrapper.Create()
 
 	var productWrapper ProductWrapper
-	productWrapper.Single = Product{uuid.New(), "Lekor Ganu - 10", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Lekor Ganu - 10", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Lekor Ganu - 5", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Lekor Ganu - 5", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Lekor Ganu - 3", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Lekor Ganu - 3", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Lekor Ganu - 1", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Lekor Ganu - 1", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Lekor Ganu - Bundle", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Lekor Ganu - Bundle", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Nipis Gombak - Peket", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Nipis Gombak - Peket", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Nipis Gombak - Beg", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Nipis Gombak - Beg", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Losong - RM8", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Losong - RM6", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Tepung - 5kg", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Tepung - 1kg", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Sos Ummi", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Sos Ummi", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Sos Ganu", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Sos Ganu", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Keropok Kering - 7", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Keropok Kering - RM7", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Keropok Kering - 12", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Keropok Kering - RM12", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Keropok Kering - 13", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Keropok Kering - RM13", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Karipap ", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Karipap - RM3.2", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Karipap - P", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Samosa", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Samosa", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Samosa Kecil", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Samosa Kecil", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Kepala Keropok", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Cucur Badak", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Cucur Badak", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Popia Murtabak - Ayam", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Murtabak (P)", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Popia Murtabak - Daging", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Popia Murtabak - Ayam", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Murtabak Yati - Ayam", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Popia Murtabak - Daging", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
-	productWrapper.Single = Product{uuid.New(), "Murtabak Yati - Daging", 10.00, 20.00, time.Now(), time.Now(), true}
+	productWrapper.Single = Product{uuid.New(), "Murtabak Yati - Ayam", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
+	productWrapper.Create()
+	productWrapper.Single = Product{uuid.New(), "Murtabak Yati - Daging", uuid.New(), ProductCategory{}, time.Now(), time.Now(), true}
 	productWrapper.Create()
 
 	var branchWrapper BranchWrapper
@@ -140,8 +148,10 @@ func InitDB() {
 		(*Branch)(nil),
 		(*Record)(nil),
 		(*Supplier)(nil),
+		(*ProductCategory)(nil),
 		(*Product)(nil),
 		(*ProductSupplier)(nil),
+		(*ProductPrice)(nil),
 		(*Stock)(nil),
 		(*Financial)(nil),
 		(*Expense)(nil),
@@ -152,5 +162,8 @@ func InitDB() {
 		services.CreateTable(db, model)
 	}
 
-	//\runTestModel(len(models))
+	gen := true
+	if gen {
+		runTestModel(len(models))
+	}
 }

@@ -40,12 +40,15 @@ type Product struct {
 	ID uuid.UUID `json:"id" dt:"id" pg:"type:uuid"`
 	// the name for the product
 	Product string `json:"product" dt:"product"`
-	// the dateCreated for the product
-	CostPrice   float32   `json:"cost_price,string" dt:"cost_price"`
-	SalePrice   float32   `json:"sale_price,string" dt:"sale_price"`
-	DateCreated time.Time `json:"date_created" dt:"date_created"`
+
+	//CostPrice float32 `json:"cost_price" dt:"cost_price" `
+	//SalePrice float32 `json:"sale_price" dt:"sale_price" `
+	ProductCategoryID uuid.UUID       `json:"product_category_id" pg:"type:uuid" `
+	ProductCategory   ProductCategory `json:"category" dt:"category" pg:"fk:product_category_id"`
+
+	DateCreated time.Time `json:"date_created" dt:"date_created" pg:"default:CURRENT_TIMESTAMP"`
 	// the dateUpdated for the product
-	DateUpdated time.Time `json:"date_updated" dt:"date_updated"`
+	DateUpdated time.Time `json:"date_updated" dt:"date_updated" pg:"default:CURRENT_TIMESTAMP"`
 	Show        bool      `json:"-" pg:"default:true"`
 }
 
@@ -108,9 +111,19 @@ func (ew *ProductWrapper) DtList(dtlist DtListWrapper, dtlr *DtListRequest) (err
 func (pw *ProductWrapper) Create() error {
 	db := pg.Connect(services.PgOptions())
 	defer db.Close()
-	pw.Single.ID = uuid.New()
+	err := db.RunInTransaction(func(tx *pg.Tx) error {
+		//producePrice = ProductPrice{}
+		pw.Single.ID = uuid.New()
 
-	err := db.Insert(&pw.Single)
+		err := tx.Insert(&pw.Single)
+
+		err = tx.Insert()
+
+		if err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
 		return err
 	}

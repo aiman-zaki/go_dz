@@ -37,8 +37,8 @@ func (fw *FinancialWrapper) ReadByRecordId() error {
 	err := db.Model((*Financial)(nil)).
 		ColumnExpr(`"financial"."id" AS "financial__id", "financial"."record_id" AS "financial__record_id" ,"financial"."collection" AS "financial__collection"`).
 		ColumnExpr(`"expense"."id" AS "expense__id", "expense"."financial_id" AS "expense__financial_id" ,"expense"."reason" AS "expense__reason", "expense"."amount" AS "expense__amount"`).
-		Where(`record_id = ?`, fw.RecordID).
 		Join(`INNER JOIN expenses AS "expense" ON "financial"."id" = "expense"."financial_id"`).
+		Where(`record_id = ?`, fw.RecordID).
 		Select(&res)
 
 	if err != nil {
